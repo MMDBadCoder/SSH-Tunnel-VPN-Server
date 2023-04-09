@@ -19,6 +19,7 @@ def finish_pack(modeladmin, request, queryset):
 
 class PackAdmin(admin.ModelAdmin):
     actions = [start_pack, finish_pack]
+    list_filter = ('started', 'finished')
 
 
 admin.site.register(Pack, PackAdmin)
