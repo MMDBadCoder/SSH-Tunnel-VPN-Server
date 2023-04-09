@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Home</title>
+    <title>Active packs</title>
     {% include 'common-head.html' %}
 </head>
 <body>
@@ -9,7 +9,7 @@
 
 <div class="ui segment" style="margin: 10px">
 
-    <h1 class="ui header">Active packs</h1>
+    <h1 class="ui header">Active packs({{ packs | length }})</h1>
 
     <div class="ui inverted segment">
         <div class="ui inverted relaxed divided list">
@@ -20,7 +20,7 @@
                     <div class="description">
                         {{ pack.user.email }}
                     </div>
-                {% include 'pack-item.html' with pack=pack HOSTNAME=HOSTNAME %}
+                    {% include 'pack-item.html' with pack=pack HOSTNAME=HOSTNAME %}
                 </div>
 
             {% endfor %}

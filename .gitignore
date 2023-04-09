@@ -270,3 +270,5 @@ runserver.sh
 
 ./test.sh
 test.sh
+
+./db.sqlite3
