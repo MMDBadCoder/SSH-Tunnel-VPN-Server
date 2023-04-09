@@ -23,9 +23,10 @@ class Pack(models.Model):
     finished = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.username + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'
+        return self.user.first_name + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'
 
-    def get_most_free_port(self):
+    @staticmethod
+    def get_most_free_port():
         uses = {}
         for port in PORTS:
             uses[port] = 0

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home</title>
+    {% include 'common-head.html' %}
+</head>
+<body>
+
+
+<div class="ui segment" style="margin: 10px">
+
+    <h1 class="ui header">Active packs</h1>
+
+    <div class="ui inverted segment">
+        <div class="ui inverted relaxed divided list">
+
+            {% for pack in packs %}
+                <div class="item" style="border-color: white; border-width: 3px">
+                    <a class="header">{{ pack.user.first_name }}</a>
+                    <div class="description">
+                        {{ pack.user.email }}
+                    </div>
+                {% include 'pack-item.html' with pack=pack HOSTNAME=HOSTNAME %}
+                </div>
+
+            {% endfor %}
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
