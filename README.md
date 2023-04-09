@@ -22,7 +22,7 @@ full automated vpn server
 <li>Clone code by <code>sudo apt install git ; git clone https://github.com/MMDBadCoder/SSH-Tunnel-VPN-Server.git</code></li>
 <li>Go to project's Directory by <code>cd SSH-Tunnel-VPN-Server/</code></li>
 <li>Tune your customized settings in VpnServer/settings by <code>vim VpnServer/settings.py</code></li>
-<li>Install MMD-VPV by <code>chmod +x install.sh ; ./install.sh</code></li>
+<li>Install MMD-VPN by <code>chmod +x install.sh ; ./install.sh</code></li>
 <li>Add your webhook address to Idpay webhook field, idpay webhook should be filled by <code>yourhost/payment/webhook</code></li>
 </ol>
 
