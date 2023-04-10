@@ -3,6 +3,7 @@ from django.http import HttpResponse, Http404, HttpResponseNotFound
 from django.shortcuts import render, redirect
 
 from VpnServer import settings
+from VpnServer.settings import HOSTNAME
 from packs.models import Pack
 
 
@@ -26,7 +27,7 @@ def start_pack(request, pack_id):
 @login_required
 def get_putty_shell_file(request, pack_id):
     pack = Pack.objects.get(id=pack_id)
-    content = f'START /B putty.exe -D 10808 -ssh {pack.linux_username}@hajmmd.ir {pack.port} -pw {pack.linux_password}'
+    content = f'START /B putty.exe -D 10808 -ssh {pack.linux_username}@{HOSTNAME} {pack.port} -pw {pack.linux_password}'
     response = HttpResponse(content, content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename={0}'.format('proxy.cmd')
     return response
