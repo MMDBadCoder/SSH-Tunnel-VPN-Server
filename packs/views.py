@@ -42,3 +42,11 @@ def all_active_packs(request):
         'HOSTNAME': settings.HOSTNAME
     }
     return render(request, 'active-packs.html', data)
+
+
+def get_linux_shell(request, pack_id):
+    pack = Pack.objects.get(id=pack_id)
+    content = f"sshpass -p \"{pack.linux_password}\" ssh -oStrictHostKeyChecking=no -D 10808 -C -q -N {pack.linux_username}@{HOSTNAME} -p {pack.port}"
+    response = HttpResponse(content, content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename={0}'.format('proxy.sh')
+    return response

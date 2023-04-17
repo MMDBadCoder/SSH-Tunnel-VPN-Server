@@ -65,6 +65,38 @@
                 })
             </script>
         </div>
+        <div class="right floated content">
+            <button class="ui button" id="linux-connection-{{ pack.id }}">
+                <i class="linux icon black large"></i> Linux
+            </button>
+            <script>
+                $('#linux-connection-{{ pack.id }}').click(function () {
+                    Swal.fire({
+                        title: '<strong><u>Linux connection</u></strong>',
+                        icon: 'info',
+                        html: '<div class="ui list">' +
+                            '    <div class="item">' +
+                            '        install sshpass by this command:</br>' +
+                            '        <code>sudo apt-get install -y sshpass</code>' +
+                            '    </div>' +
+                            '    <div class="item">' +
+                            '        2. Download this <a href="{% url 'user-linux-shell' pack.id %}">shell file</a>.' +
+                            '    </div>' +
+                            '    <div class="item">' +
+                            '        3. run it.' +
+                            '    </div>' +
+                            '    <div class="item">' +
+                            '        4. Now you have proxy on port 10808, and you can connect all your apps to this proxy by these configs:' +
+                            '<br>' +
+                            ' server: 127.0.0.1' +
+                            '<br>' +
+                            'port: 10808' +
+                            '    </div>' +
+                            '</div>'
+                    });
+                })
+            </script>
+        </div>
         <i class="icon check green large"></i>
     {% else %}
         <div class="right floated content">
