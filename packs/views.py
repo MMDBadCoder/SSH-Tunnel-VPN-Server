@@ -12,7 +12,7 @@ def home_view(request):
     data = {
         'EACH_WEEK_PRICE': settings.EACH_WEEK_PRICE,
         'IDPAY_PAYMENT_PAGE_URL': settings.IDPAY_PAYMENT_PAGE_URL,
-        'packs': Pack.objects.filter(user=request.user).order_by('-start_time'),
+        'packs': Pack.objects.filter(user=request.user).order_by('-id'),
         'HOSTNAME': settings.HOSTNAME
     }
     return render(request, 'home.html', data)
@@ -47,7 +47,7 @@ def all_active_packs(request):
     if not request.user.is_staff:
         return HttpResponseNotFound("Not found")
     data = {
-        'packs': Pack.objects.filter(started=True, finished=False).order_by('-start_time'),
+        'packs': Pack.objects.filter(started=True, finished=False).order_by('-id'),
         'HOSTNAME': settings.HOSTNAME
     }
     return render(request, 'active-packs.html', data)
