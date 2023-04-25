@@ -3,7 +3,7 @@
     {% if pack.finished %}
         <i class="icon close red large"></i>
     {% elif pack.started %}
-        <div class="right floated content">
+        <div class="right floated content" style="margin-bottom: 5px">
             <button class="ui button" id="android-connection-{{ pack.id }}">
                 <i class="android icon green large"></i> Android
             </button>
@@ -34,7 +34,7 @@
                 })
             </script>
         </div>
-        <div class="right floated content">
+        <div class="right floated content" style="margin-bottom: 5px">
             <button class="ui button" id="windows-connection-{{ pack.id }}">
                 <i class="windows icon blue large"></i> Windows
             </button>
@@ -65,7 +65,7 @@
                 })
             </script>
         </div>
-        <div class="right floated content">
+        <div class="right floated content" style="margin-bottom: 5px">
             <button class="ui button" id="linux-connection-{{ pack.id }}">
                 <i class="linux icon black large"></i> Linux
             </button>
@@ -99,7 +99,7 @@
         </div>
         <i class="icon check green large"></i>
     {% else %}
-        <div class="right floated content">
+        <div class="right floated content" style="margin-bottom: 5px">
             <a href="{% url 'user-start-pack' pack.id %}">
                 <button class="positive ui button">Start</button>
             </a>
