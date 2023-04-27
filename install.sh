@@ -1,4 +1,4 @@
-apt install python3.8-venv
+apt install python3.8-venv -y
 
 python3 -m venv venv
 source venv/bin/activate
