@@ -136,4 +136,4 @@ PORTS = list(range(int(ports_range[0]), int(ports_range[1])))
 EACH_WEEK_PRICE = 10_000  # toman
 IDPAY_PAYMENT_PAGE_URL = 'https://idpay.ir/mmd10/shop/604235'
 HOSTNAME = 'hajmmd.ir'
-REBOOT_PERIOD_SECONDS = 6 * 60 * 60
+REBOOT_PERIOD_SECONDS = 24 * 60 * 60
