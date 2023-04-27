@@ -3,6 +3,7 @@ import os
 import random
 import shutil
 import string
+import subprocess
 import time
 
 from django.contrib.auth.models import User
@@ -71,6 +72,9 @@ class Pack(models.Model):
         self.finished = True
         self.save()
         os_user.remove_user(self.linux_username)
+        pid_of_ssh = self.get_ssh_pid()
+        if pid_of_ssh is not None:
+            subprocess.run(['kill', '-9', str(pid_of_ssh)])
 
     def get_ssh_command(self):
         related_ssh_config_file = self.get_ssh_config_path()
@@ -78,6 +82,15 @@ class Pack(models.Model):
 
     def get_ssh_config_path(self):
         return 'ssh_configs/' + self.linux_username + '_ssh'
+
+    def get_ssh_pid(self):
+        try:
+            command = f'ps aux | grep {self.linux_username}_ssh | tr -s ' ' | cut -d' ' -f2 | head -n1'
+            pid = subprocess.run([command], stdout=subprocess.PIPE).stdout.decode('utf-8')
+            return int(pid)
+        except Exception as e:
+            print(e)
+            return None
 
 
 def check_finished_packs():
