@@ -97,6 +97,37 @@
                 })
             </script>
         </div>
+        <div class="right floated content">
+            <button class="ui button" id="ios-connection-{{ pack.id }}">
+                <i class="apple icon grey large"></i> IOS
+            </button>
+            <script>
+                $('#ios-connection-{{ pack.id }}').click(function () {
+                    Swal.fire({
+                        title: '<strong><u>IOS connection</u></strong>',
+                        icon: 'info',
+                        html: '<div class="ui list">' +
+                            '    <div class="item">' +
+                            '        1. Install <a href="https://apps.apple.com/us/app/napsternetv/id1629465476">NapsternetV</a> from apple store.' +
+                            '    </div>' +
+                            '    <div class="item">' +
+                            '        2. See this <a href="https://torguard.net/indexori.php?rp=/knowledgebase/312/How-to-connect-with-SSH-tunnel-on-iOS-using-NapsternetV.html">tutorial</a>.' +
+                            '    </div>' +
+                            '    <div class="item">' +
+                            '        3. Enter the following values in ssh settings.' +
+                            '    </br>' +
+                            '        <ul class="ui list">' +
+                            '            <li value="-">hostname: {{ HOSTNAME }}</li>' +
+                            '            <li value="-">port: {{ pack.port }}</li>' +
+                            '            <li value="-">username: {{ pack.linux_username }}</li>' +
+                            '            <li value="-">password: {{ pack.linux_password }}</li>' +
+                            '        </ul>' +
+                            '    </div>' +
+                            '</div>'
+                    });
+                })
+            </script>
+        </div>
         <i class="icon check green large"></i>
     {% else %}
         <div class="right floated content">
