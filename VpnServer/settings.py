@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounting',
     'packs',
-    'payment'
+    'payment',
+    'monitoring',
+    'backup_system'
 ]
 
 MIDDLEWARE = [
@@ -113,12 +115,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_PUBLIC_URL = STATIC_URL
-
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 STATIC_PUBLIC_DIR = STATIC_DIR
 STATICFILES_DIRS = [STATIC_DIR, ]
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = MEDIA_DIR
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

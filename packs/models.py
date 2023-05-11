@@ -14,7 +14,7 @@ from . import os_user
 
 
 class Pack(models.Model):
-    user = models.ForeignKey(to=User, on_delete=models.PROTECT, related_name='packs')
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='packs')
     start_time = models.DateTimeField(blank=True, null=True, default=None)
     days = models.IntegerField(blank=False, null=False)
     linux_username = models.CharField(blank=True, null=True, default='', max_length=10)

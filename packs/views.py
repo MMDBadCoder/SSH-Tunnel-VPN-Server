@@ -1,12 +1,9 @@
-import time
-from datetime import timedelta
-
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, Http404, HttpResponseNotFound
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from VpnServer import settings
-from VpnServer.settings import HOSTNAME, REBOOT_PERIOD_SECONDS, STARTUP_TIME
+from VpnServer.settings import HOSTNAME
 from packs.models import Pack
 
 
@@ -43,20 +40,3 @@ def get_linux_shell(request, pack_id):
     response = HttpResponse(content, content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename={0}'.format('proxy.sh')
     return response
-
-
-@login_required
-def monitor_packs(request):
-    if not request.user.is_staff:
-        return HttpResponseNotFound("Not found")
-
-    running_time = time.time() - STARTUP_TIME
-    reminded_seconds_to_reboot = int(REBOOT_PERIOD_SECONDS - running_time)
-
-    data = {
-        'packs': Pack.objects.filter(started=True, finished=False).order_by('-id'),
-        'HOSTNAME': settings.HOSTNAME,
-        "TIME_TO_REBOOT": timedelta(seconds=reminded_seconds_to_reboot)
-    }
-
-    return render(request, 'monitor.html', data)
