@@ -1,9 +1,12 @@
+import time
+from datetime import timedelta
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404, HttpResponseNotFound
 from django.shortcuts import render, redirect
 
 from VpnServer import settings
-from VpnServer.settings import HOSTNAME
+from VpnServer.settings import HOSTNAME, REBOOT_PERIOD_SECONDS, STARTUP_TIME
 from packs.models import Pack
 
 
@@ -43,11 +46,17 @@ def get_linux_shell(request, pack_id):
 
 
 @login_required
-def all_active_packs(request):
+def monitor_packs(request):
     if not request.user.is_staff:
         return HttpResponseNotFound("Not found")
+
+    running_time = time.time() - STARTUP_TIME
+    reminded_seconds_to_reboot = int(REBOOT_PERIOD_SECONDS - running_time)
+
     data = {
         'packs': Pack.objects.filter(started=True, finished=False).order_by('-id'),
-        'HOSTNAME': settings.HOSTNAME
+        'HOSTNAME': settings.HOSTNAME,
+        "TIME_TO_REBOOT": timedelta(seconds=reminded_seconds_to_reboot)
     }
-    return render(request, 'active-packs.html', data)
+
+    return render(request, 'monitor.html', data)

@@ -6,6 +6,24 @@
 </head>
 <body>
 
+<div class="ui segment" style="margin: 10px">
+
+    <h1 class="ui header">System state</h1>
+
+    <div class="ui inverted segment">
+        <div class="ui inverted relaxed divided list">
+
+            <div class="item">
+                <div class="content">
+                    <div class="header">Time to reboot:</div>
+                    {{ TIME_TO_REBOOT }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
 
 <div class="ui segment" style="margin: 10px">
 
@@ -22,12 +40,12 @@
                     </div>
                     {% include 'pack-item.html' with pack=pack HOSTNAME=HOSTNAME %}
                 </div>
-
             {% endfor %}
 
         </div>
     </div>
 
 </div>
+
 </body>
 </html>
