@@ -128,6 +128,66 @@
                 })
             </script>
         </div>
+        <div class="right floated content">
+            <button class="ui inverted grey button" id="test-{{ pack.id }}" style="font-weight: bold; color: green">
+                <i class="icon large green check circle outline"></i> Connection Test
+            </button>
+            <script>
+                $('#test-{{ pack.id }}').click(function () {
+
+                    let timerInterval;
+                    let timeout = 5000;
+                    let successful = false;
+                    Swal.fire({
+                        title: 'Connection test',
+                        html: 'It takes <b></b> milliseconds to connect.',
+                        timer: timeout,
+                        timerProgressBar: true,
+                        didOpen: () => {
+                            $.ajax({
+                                type: 'GET',
+                                url: "{% url 'user-pack-test' pack.id %}",
+                                success: function (response) {
+                                    if (response === 'True') {
+                                        successful = true;
+                                    }
+                                    Swal.close();
+                                    clearInterval(timerInterval)
+                                },
+                                error: function (response) {
+                                    console.log(response);
+                                    Swal.close();
+                                    clearInterval(timerInterval)
+                                }
+                            });
+                            Swal.showLoading()
+                            const b = Swal.getHtmlContainer().querySelector('b')
+                            timerInterval = setInterval(() => {
+                                b.textContent = timeout - Swal.getTimerLeft()
+                            }, 100)
+                        },
+                        willClose: () => {
+                            clearInterval(timerInterval)
+                        }
+                    }).then((result) => {
+                        if (successful === false) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Something went wrong!',
+                                timer: 1500
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Connection was successful.',
+                                timer: 1500
+                            })
+                        }
+                    })
+                })
+            </script>
+        </div>
         <i class="icon check green large"></i>
     {% else %}
         <div class="right floated content">

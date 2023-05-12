@@ -1,6 +1,8 @@
+import paramiko
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from paramiko import SSHClient
 
 from VpnServer import settings
 from VpnServer.settings import HOSTNAME
@@ -40,3 +42,20 @@ def get_linux_shell(request, pack_id):
     response = HttpResponse(content, content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename={0}'.format('proxy.sh')
     return response
+
+
+@login_required
+def test_pack_connection(request, pack_id):
+    pack = Pack.objects.get(id=pack_id)
+
+    successful = False
+    with SSHClient() as client:
+        try:
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            client.connect(HOSTNAME, port=pack.port, username=pack.linux_username,
+                           password=pack.linux_password, timeout=3)
+            successful = True
+        except Exception as e:
+            print(e)
+
+    return HttpResponse(status=200, content=successful)
