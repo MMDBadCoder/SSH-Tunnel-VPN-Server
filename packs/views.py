@@ -1,6 +1,6 @@
 import paramiko
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from paramiko import SSHClient
 
@@ -59,3 +59,13 @@ def test_pack_connection(request, pack_id):
             print(e)
 
     return HttpResponse(status=200, content=successful)
+
+
+@login_required
+def restart_pack(request, pack_id):
+    pack = Pack.objects.get(id=pack_id)
+    if pack.finished or not pack.started:
+        return HttpResponseBadRequest("Pack is not active.")
+    pack.finish()
+    pack.run_pack()
+    return redirect('user-home')

@@ -129,8 +129,8 @@
             </script>
         </div>
         <div class="right floated content">
-            <button class="ui inverted grey button" id="test-{{ pack.id }}" style="font-weight: bold; color: green">
-                <i class="icon large green check circle outline"></i> Connection Test
+            <button class="ui inverted green button" id="test-{{ pack.id }}" style="font-weight: bold;">
+                <i class="icon large check circle outline"></i> Connection Test
             </button>
             <script>
                 $('#test-{{ pack.id }}').click(function () {
@@ -188,6 +188,13 @@
                 })
             </script>
         </div>
+        <div class="right floated content">
+            <a href="{% url 'user-pack-restart' pack.id %}">
+                <button class="ui inverted olive button" style="font-weight: bold;">
+                    <i class="icon large check sync alternate"></i> Restart
+                </button>
+            </a>
+        </div>
         <i class="icon check green large"></i>
     {% else %}
         <div class="right floated content">
@@ -205,6 +212,19 @@
                 Expired
             {% elif pack.started %}
                 In use, Started from {{ pack.start_time | timesince }} ago
+                <div id="pack{{ pack.id }}-connected-devices"></div>
+                <script>
+                    let con_devs_div = $("#pack{{ pack.id }}-connected-devices");
+                    let count = {{ pack.connection_count }};
+                    let color = 'lightsalmon';
+                    if (count > 1) {
+                        color = 'lime'
+                    } else if (count === 1) {
+                        color = 'gold';
+                    }
+                    con_devs_div.text("Connected devices: " + count);
+                    con_devs_div.css('color', color);
+                </script>
             {% else %}
                 Not started yet
             {% endif %}

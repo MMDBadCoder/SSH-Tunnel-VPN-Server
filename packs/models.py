@@ -9,6 +9,7 @@ import time
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.template.defaultfilters import register
 
 from VpnServer.settings import PORTS_START_FROM
 from . import os_user
@@ -23,6 +24,7 @@ class Pack(models.Model):
     port = models.IntegerField(default=0, blank=True, null=True)
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
+    session_pid = models.IntegerField(default=-1, blank=False, null=False)
 
     def __str__(self):
         return self.user.first_name + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'
@@ -74,6 +76,14 @@ class Pack(models.Model):
         command = '/usr/sbin/sshd -f ' + os.path.abspath(related_ssh_config_file)
         os.system(command)
 
+        # calculating pid of ssh session
+        command = f"ps aux | grep {self.linux_username}_ssh | head -n 1 | tr -s ' ' | cut -d' ' -f2"
+        pid_of_ssh = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
+        pid_of_ssh = pid_of_ssh.stdout.decode('utf-8').strip()
+        if pid_of_ssh.isnumeric():
+            self.session_pid = int(pid_of_ssh)
+            self.save()
+
         # open port by ufw
         subprocess.call(['ufw', 'allow', str(self.port) + '/tcp'])
 
@@ -83,13 +93,10 @@ class Pack(models.Model):
         self.save()
         os_user.remove_user(self.linux_username)
 
-        # getting pid of ssh session and kill process
-        command = f"ps aux | grep {self.linux_username}_ssh | head -n 1 | tr -s ' ' | cut -d' ' -f2"
-        pid_of_ssh = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
-        pid_of_ssh = pid_of_ssh.stdout.decode('utf-8').strip()
-        if pid_of_ssh is not None and pid_of_ssh.isnumeric() and int(pid_of_ssh) != 0:
+        # kill process os session
+        if self.session_pid != -1:
             try:
-                os.kill(int(pid_of_ssh), 9)
+                os.kill(self.session_pid, 9)
                 print(f"Pack {self.id} was finished successfully.")
             except Exception as e:
                 print(f"Failed at finishing pack {self.id}")
@@ -97,6 +104,14 @@ class Pack(models.Model):
 
         # close session port by ufw
         subprocess.call(['ufw', 'deny', str(self.port) + '/tcp'])
+
+    def connection_count(self):
+        command = f"ps ax | grep '{self.linux_username} \[priv\]'"
+        result = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
+        result = result.stdout.decode('utf-8').strip()
+        if result == '':
+            return 0
+        return len(result.split('\n'))
 
 
 def check_finished_packs():
