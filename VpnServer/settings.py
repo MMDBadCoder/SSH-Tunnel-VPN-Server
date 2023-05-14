@@ -131,8 +131,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/account/login/'
 
-ports_range = open('ports', 'r').readline().split(':')
-PORTS = list(range(int(ports_range[0]), int(ports_range[1])))
+PORTS_START_FROM = 2200
 
 ##########################################
 ############ IMPORTANT SETTINGS ##########

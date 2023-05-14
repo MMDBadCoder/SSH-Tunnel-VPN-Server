@@ -1,8 +1,6 @@
 sudo apt update
+
 sudo apt install ufw -y
-ports=$(cat ports)
-sudo ufw allow $ports/tcp
-sudo ufw allow $ports/udp
 sudo ufw allow 80
 for port in $(cat /etc/ssh/sshd_config | grep "^Port" | cut -d' ' -f2); do
   sudo ufw allow $port

@@ -2,6 +2,7 @@ import datetime
 import os
 import random
 import shutil
+import socket
 import string
 import subprocess
 import time
@@ -9,7 +10,7 @@ import time
 from django.contrib.auth.models import User
 from django.db import models
 
-from VpnServer.settings import PORTS
+from VpnServer.settings import PORTS_START_FROM
 from . import os_user
 
 
@@ -27,19 +28,21 @@ class Pack(models.Model):
         return self.user.first_name + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'
 
     @staticmethod
-    def get_most_free_port():
-        uses = {}
-        for port in PORTS:
-            uses[port] = 0
-        for pack in Pack.objects.filter(started=True, finished=False):
-            if uses.__contains__(pack.port):
-                uses[pack.port] += 1
+    def get_first_free_port():
+        packs_ports = Pack.objects.filter(started=True, finished=False).values_list('port')
 
-        best_port = PORTS[0]
-        for port in PORTS:
-            if uses[port] < uses[best_port]:
-                best_port = port
-        return best_port
+        def is_port_is_use(port):
+            if packs_ports.contains(port):
+                return True
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                return s.connect_ex(('127.0.0.1', port)) == 0
+
+        current_port = PORTS_START_FROM
+        while True:
+            if not is_port_is_use(current_port):
+                break
+            current_port += 1
+        return current_port
 
     def run_pack(self):
         if self.start_time is None:
@@ -52,12 +55,13 @@ class Pack(models.Model):
             letters = string.ascii_lowercase + string.digits
             self.linux_password = ''.join(random.choice(letters) for _ in range(8))
         if self.port is None or self.port == 0:
-            self.port = self.get_most_free_port()
+            self.port = self.get_first_free_port()
         self.save()
         os_user.add_user(self.linux_username, self.linux_password)
         self.create_ssh_session()
 
     def create_ssh_session(self):
+        # write ssh config file
         with open('sshd_config', 'r') as file:
             filedata = file.read()
         filedata = filedata.replace('$username$', self.linux_username)
@@ -65,8 +69,13 @@ class Pack(models.Model):
         related_ssh_config_file = 'ssh_configs/' + self.linux_username + '_ssh'
         with open(related_ssh_config_file, 'w') as file:
             file.write(filedata)
+
+        # create ssh session
         command = '/usr/sbin/sshd -f ' + os.path.abspath(related_ssh_config_file)
         os.system(command)
+
+        # open port by ufw
+        subprocess.call(['ufw', 'allow', str(self.port)])
 
     def finish(self):
         self.started = True
@@ -85,6 +94,9 @@ class Pack(models.Model):
             except Exception as e:
                 print(f"Failed at finishing pack {self.id}")
                 print(e)
+
+        # close session port by ufw
+        subprocess.call(['ufw', 'deny', str(self.port)])
 
 
 def check_finished_packs():
