@@ -22,7 +22,6 @@ class Pack(models.Model):
     port = models.IntegerField(default=0, blank=True, null=True)
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
-    session_pid = models.IntegerField(default=0, blank=True, null=True)
 
     def __str__(self):
         return self.user.first_name + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'
@@ -67,17 +66,18 @@ class Pack(models.Model):
         with open(related_ssh_config_file, 'w') as file:
             file.write(filedata)
         command = '/usr/sbin/sshd -f ' + os.path.abspath(related_ssh_config_file) + " & echo $!"
-        pid = subprocess.run([command], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        self.session_pid = int(pid)
-        self.save()
+        os.system(command)
 
     def finish(self):
         self.started = True
         self.finished = True
         self.save()
         os_user.remove_user(self.linux_username)
-        pid_of_ssh = self.session_pid
-        if pid_of_ssh is not 0:
+
+        # getting pid of ssh session and kill process
+        command = f'ps aux | grep {self.linux_username}_ssh | head -n 1 | tr -s ' ' | cut -d' ' -f2'
+        pid_of_ssh = subprocess.run([command], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        if pid_of_ssh is not None and pid_of_ssh.isnumeric() and pid_of_ssh != 0:
             subprocess.run(['kill', '-9', str(pid_of_ssh)])
 
 
