@@ -20,7 +20,7 @@ def monitoring_page(request):
         'packs': Pack.objects.filter(started=True, finished=False).order_by('-id'),
         'HOSTNAME': HOSTNAME,
         "TIME_TO_REBOOT": timedelta(seconds=reminded_seconds_to_reboot),
-        'CONNECTED': all_connection_count()
+        'CONNECTIONS': all_connection_count()
     }
 
     return render(request, 'monitor.html', data)
