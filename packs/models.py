@@ -75,7 +75,7 @@ class Pack(models.Model):
         os.system(command)
 
         # open port by ufw
-        subprocess.call(['ufw', 'allow', str(self.port)])
+        subprocess.call(['ufw', 'allow', str(self.port) + '/tcp'])
 
     def finish(self):
         self.started = True
@@ -96,7 +96,7 @@ class Pack(models.Model):
                 print(e)
 
         # close session port by ufw
-        subprocess.call(['ufw', 'deny', str(self.port)])
+        subprocess.call(['ufw', 'deny', str(self.port) + '/tcp'])
 
 
 def check_finished_packs():
