@@ -214,9 +214,9 @@
                 In use, Started from {{ pack.start_time | timesince }} ago
                 <div id="pack{{ pack.id }}-connected-devices"></div>
                 <script>
-                    let con_devs_div = $("#pack{{ pack.id }}-connected-devices");
-                    let count = {{ pack.connection_count }};
-                    let color = 'lightsalmon';
+                    con_devs_div = $("#pack{{ pack.id }}-connected-devices");
+                    count = {{ pack.connection_count }};
+                    color = 'lightsalmon';
                     if (count > 1) {
                         color = 'lime'
                     } else if (count === 1) {
