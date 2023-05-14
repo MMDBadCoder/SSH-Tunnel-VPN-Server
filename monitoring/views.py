@@ -1,3 +1,4 @@
+import subprocess
 import time
 from datetime import timedelta
 
@@ -18,7 +19,17 @@ def monitoring_page(request):
     data = {
         'packs': Pack.objects.filter(started=True, finished=False).order_by('-id'),
         'HOSTNAME': HOSTNAME,
-        "TIME_TO_REBOOT": timedelta(seconds=reminded_seconds_to_reboot)
+        "TIME_TO_REBOOT": timedelta(seconds=reminded_seconds_to_reboot),
+        'CONNECTED': all_connection_count()
     }
 
     return render(request, 'monitor.html', data)
+
+
+def all_connection_count():
+    command = "ps ax | grep ssh | grep '\[priv\]'"
+    result = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
+    result = result.stdout.decode('utf-8').strip()
+    if result == '':
+        return 0
+    return len(result.split('\n'))
