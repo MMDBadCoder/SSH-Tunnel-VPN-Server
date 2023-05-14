@@ -9,7 +9,6 @@ import time
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.template.defaultfilters import register
 
 from VpnServer.settings import PORTS_START_FROM
 from . import os_user
@@ -31,10 +30,11 @@ class Pack(models.Model):
 
     @staticmethod
     def get_first_free_port():
-        packs_ports = Pack.objects.filter(started=True, finished=False).values_list('port')
+        active_packs = list(Pack.objects.filter(started=True, finished=False).values('port'))
+        packs_ports = [pack['port'] for pack in active_packs]
 
         def is_port_is_use(port):
-            if packs_ports.contains(port):
+            if packs_ports.__contains__(port):
                 return True
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 return s.connect_ex(('127.0.0.1', port)) == 0
