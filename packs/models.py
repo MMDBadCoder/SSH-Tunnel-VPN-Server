@@ -68,7 +68,7 @@ class Pack(models.Model):
             file.write(filedata)
         command = '/usr/sbin/sshd -f ' + os.path.abspath(related_ssh_config_file) + " & echo $!"
         pid = subprocess.run([command], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        self.session_pid = pid
+        self.session_pid = int(pid)
         self.save()
 
     def finish(self):
