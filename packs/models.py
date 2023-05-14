@@ -22,6 +22,7 @@ class Pack(models.Model):
     port = models.IntegerField(default=0, blank=True, null=True)
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
+    session_pid = models.IntegerField(default=0, blank=True, null=True)
 
     def __str__(self):
         return self.user.first_name + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'
@@ -55,42 +56,29 @@ class Pack(models.Model):
             self.port = self.get_most_free_port()
         self.save()
         os_user.add_user(self.linux_username, self.linux_password)
-        self.run_ssh_service()
+        self.create_ssh_session()
 
-    def run_ssh_service(self):
+    def create_ssh_session(self):
         with open('sshd_config', 'r') as file:
             filedata = file.read()
         filedata = filedata.replace('$username$', self.linux_username)
         filedata = filedata.replace('$port$', str(self.port))
-        related_ssh_config_file = self.get_ssh_config_path()
+        related_ssh_config_file = 'ssh_configs/' + self.linux_username + '_ssh'
         with open(related_ssh_config_file, 'w') as file:
             file.write(filedata)
-        os.system('/usr/sbin/sshd -f ' + os.path.abspath(related_ssh_config_file))
+        command = '/usr/sbin/sshd -f ' + os.path.abspath(related_ssh_config_file) + " & echo $!"
+        pid = subprocess.run([command], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        self.session_pid = pid
+        self.save()
 
     def finish(self):
         self.started = True
         self.finished = True
         self.save()
         os_user.remove_user(self.linux_username)
-        pid_of_ssh = self.get_ssh_pid()
-        if pid_of_ssh is not None:
+        pid_of_ssh = self.session_pid
+        if pid_of_ssh is not 0:
             subprocess.run(['kill', '-9', str(pid_of_ssh)])
-
-    def get_ssh_command(self):
-        related_ssh_config_file = self.get_ssh_config_path()
-        return '/usr/sbin/sshd -f ' + os.path.abspath(related_ssh_config_file)
-
-    def get_ssh_config_path(self):
-        return 'ssh_configs/' + self.linux_username + '_ssh'
-
-    def get_ssh_pid(self):
-        try:
-            command = f'ps aux | grep {self.linux_username}_ssh | tr -s ' ' | cut -d' ' -f2 | head -n1'
-            pid = subprocess.run([command], stdout=subprocess.PIPE).stdout.decode('utf-8')
-            return int(pid)
-        except Exception as e:
-            print(e)
-            return None
 
 
 def check_finished_packs():
