@@ -65,7 +65,7 @@ class Pack(models.Model):
         related_ssh_config_file = 'ssh_configs/' + self.linux_username + '_ssh'
         with open(related_ssh_config_file, 'w') as file:
             file.write(filedata)
-        command = '/usr/sbin/sshd -f ' + os.path.abspath(related_ssh_config_file) + " & echo $!"
+        command = '/usr/sbin/sshd -f ' + os.path.abspath(related_ssh_config_file)
         os.system(command)
 
     def finish(self):
@@ -75,7 +75,7 @@ class Pack(models.Model):
         os_user.remove_user(self.linux_username)
 
         # getting pid of ssh session and kill process
-        command = f'ps aux | grep {self.linux_username}_ssh | head -n 1 | tr -s ' ' | cut -d' ' -f2'
+        command = f"ps aux | grep {self.linux_username}_ssh | head -n 1 | tr -s ' ' | cut -d' ' -f2"
         pid_of_ssh = subprocess.run([command], stdout=subprocess.PIPE).stdout.decode('utf-8')
         if pid_of_ssh is not None and pid_of_ssh.isnumeric() and pid_of_ssh != 0:
             subprocess.run(['kill', '-9', str(pid_of_ssh)])
