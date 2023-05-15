@@ -38,7 +38,8 @@ def get_putty_shell_file(request, pack_id):
 @login_required
 def get_linux_shell(request, pack_id):
     pack = Pack.objects.get(id=pack_id)
-    content = f"sshpass -p \"{pack.linux_password}\" ssh -oStrictHostKeyChecking=no -D 10808 -C -q -N {pack.linux_username}@{HOSTNAME} -p {pack.port}"
+    content = f'ssh-keygen -f "~/.ssh/known_hosts" -R "[{HOSTNAME}]:{pack.port}"\n'
+    content += f"sshpass -p \"{pack.linux_password}\" ssh -oStrictHostKeyChecking=no -D 10808 -C -q -N {pack.linux_username}@{HOSTNAME} -p {pack.port}"
     response = HttpResponse(content, content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename={0}'.format('proxy.sh')
     return response
