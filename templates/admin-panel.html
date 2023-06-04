@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Monitoring</title>
+    <title>Home</title>
     {% include 'common-head.html' %}
 </head>
 <body>
 
 <div class="ui segment" style="margin: 10px">
 
-    <h1 class="ui header">System state</h1>
+    <h1 class="ui header">Admin Panel</h1>
 
     <div class="ui inverted segment">
         <div class="ui inverted relaxed divided list">
+
+            <div class="item">
+                <div class="content">
+                    <div class="header">
+                        <a href="{% url 'admin-active-packs' %}">{{ ACTIVE_PACKS_COUNT }} Active packs</a>
+                    </div>
+                    {{ CONNECTIONS_COUNT }} Connected devices
+                </div>
+            </div>
 
             <div class="item">
                 <div class="content">
@@ -27,27 +36,12 @@
                 </div>
             </div>
 
-        </div>
-    </div>
-
-</div>
-
-<div class="ui segment" style="margin: 10px">
-
-    <h1 class="ui header">{{ packs | length }} Active packs ({{ CONNECTIONS }} devices connected)</h1>
-
-    <div class="ui inverted segment">
-        <div class="ui inverted relaxed divided list">
-
-            {% for pack in packs %}
-                <div class="item" style="border-color: white; border-width: 3px">
-                    <a class="header">{{ pack.user.first_name }}</a>
-                    <div class="description">
-                        {{ pack.user.email }}
-                    </div>
-                    {% include 'pack-item.html' with pack=pack HOSTNAME=HOSTNAME %}
+            <div class="item">
+                <div class="content">
+                    <div class="header"><a href="/admin/admin/">Advance Admin</a></div>
+                    For changing data manually
                 </div>
-            {% endfor %}
+            </div>
 
         </div>
     </div>
@@ -56,3 +50,7 @@
 
 </body>
 </html>
+
+
+
+

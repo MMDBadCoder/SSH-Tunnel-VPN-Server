@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'accounting',
     'packs',
     'payment',
-    'monitoring',
     'backup_system'
 ]
 

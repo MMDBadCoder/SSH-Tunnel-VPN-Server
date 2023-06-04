@@ -1,7 +1,8 @@
 import paramiko
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
+from django.shortcuts import render
 from paramiko import SSHClient
 
 from VpnServer import settings
@@ -17,6 +18,7 @@ def home_view(request):
         'packs': Pack.objects.filter(user=request.user).order_by('-id'),
         'HOSTNAME': settings.HOSTNAME
     }
+
     return render(request, 'home.html', data)
 
 

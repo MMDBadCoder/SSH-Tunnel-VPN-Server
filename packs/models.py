@@ -113,6 +113,15 @@ class Pack(models.Model):
             return 0
         return len(result.split('\n'))
 
+    @staticmethod
+    def all_connection_count():
+        command = "ps ax | grep ssh | grep '\[priv\]'"
+        result = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
+        result = result.stdout.decode('utf-8').strip()
+        if result == '':
+            return 0
+        return len(result.split('\n'))
+
 
 def check_finished_packs():
     while True:
