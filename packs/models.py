@@ -24,6 +24,7 @@ class Pack(models.Model):
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
     session_pid = models.IntegerField(default=-1, blank=False, null=False)
+    specific_ssh_configs = models.TextField(max_length=1000, blank=True, null=False, default='')
 
     def __str__(self):
         return self.user.first_name + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'
@@ -71,6 +72,7 @@ class Pack(models.Model):
         related_ssh_config_file = 'ssh_configs/' + self.linux_username + '_ssh'
         with open(related_ssh_config_file, 'w') as file:
             file.write(filedata)
+            file.write('\n' + self.specific_ssh_configs)
 
         # create ssh session
         command = '/usr/sbin/sshd -f ' + os.path.abspath(related_ssh_config_file)
