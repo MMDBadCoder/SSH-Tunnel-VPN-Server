@@ -8,12 +8,14 @@ from django.views.decorators.csrf import csrf_exempt
 
 from VpnServer.settings import EACH_WEEK_PRICE
 from packs.models import Pack
-from payment.models import WebhookReports
+from payment.models import WebhookReports, PaymentKey
 
 
 @csrf_exempt
-def webhook(request):
-    print('Webhook called by ' + request.META.get('REMOTE_ADDR'))
+def webhook(request, pay_key):
+    if PaymentKey.get_key() != pay_key:
+        return HttpResponseBadRequest("Wrong pay key!")
+
     try:
         data = json.loads(request.body)
         amount = int(data['amount'])

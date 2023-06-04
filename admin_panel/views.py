@@ -6,6 +6,7 @@ from django.shortcuts import render
 
 from VpnServer.settings import HOSTNAME, STARTUP_TIME, REBOOT_PERIOD_SECONDS
 from packs.models import Pack
+from payment.models import PaymentKey
 
 
 @login_required
@@ -16,7 +17,9 @@ def admin_panel_page(request):
     data = {
         'TIME_TO_REBOOT': timedelta(seconds=reminded_seconds_to_reboot),
         'CONNECTIONS_COUNT': Pack.all_connection_count(),
-        'ACTIVE_PACKS_COUNT': Pack.objects.filter(started=True, finished=False).count()
+        'ACTIVE_PACKS_COUNT': Pack.objects.filter(started=True, finished=False).count(),
+        'PAYMENT_WEB_HOOK': PaymentKey.get_key(),
+        'HOSTNAME': HOSTNAME
     }
 
     return render(request, 'admin-panel.html', data)
@@ -28,7 +31,7 @@ def active_packs(request):
     data = {
         'CONNECTIONS_COUNT': Pack.all_connection_count(),
         'packs': Pack.objects.filter(started=True, finished=False).order_by('-id'),
-        'HOSTNAME': HOSTNAME,
+        'HOSTNAME': HOSTNAME
     }
 
     return render(request, 'active-packs.html', data)

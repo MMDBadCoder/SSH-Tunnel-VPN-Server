@@ -72,3 +72,16 @@ def restart_pack(request, pack_id):
     pack.finish()
     pack.run_pack()
     return redirect('user-home')
+
+
+@login_required
+def delete_pack(request, pack_id):
+    pack = Pack.objects.get(id=pack_id)
+    if request.user != pack.user and not request.user.is_staff:
+        return HttpResponseBadRequest("No permission")
+
+    if not pack.finished:
+        return HttpResponseBadRequest("Can't delete not finished pack")
+
+    pack.delete()
+    return redirect('user-home')
