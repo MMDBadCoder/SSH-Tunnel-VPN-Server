@@ -19,15 +19,18 @@ def register_new_chain(pack):
 
 def get_usage_of_pack_after_startup(pack):
     chain_name = create_chain_name(pack)
-    command = F'iptables -L -n -v | grep {chain_name} | head -n 1 | tr -s \' \' | cut -d\' \' -f3'
-    usage = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
-    usage = usage.stdout.decode('utf-8').strip()
+    command = F'iptables -L -n -v | grep {chain_name} | head -n 2 | tr -s \' \' | cut -d\' \' -f3'
+    command_output = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
+    command_output = command_output.stdout.decode('utf-8').strip()
 
-    if usage == '':
+    if command_output == '':
         return 0
 
-    usage = usage.replace('K', '000').replace('M', '000000').replace('G', '000000000')
+    total_usage = 0
 
-    if usage.isnumeric():
-        return int(usage)
-    return 0
+    for line in command_output.split('\n'):
+        usage = line.replace('K', '000').replace('M', '000000').replace('G', '000000000')
+        if usage.isnumeric():
+            total_usage += int(usage)
+
+    return total_usage

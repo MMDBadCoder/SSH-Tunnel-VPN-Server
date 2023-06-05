@@ -135,6 +135,7 @@
 
         const {value: days_count} = await Swal.fire({
             title: 'How many days pack do you want?',
+            text: "Each day: {{ EACH_DAY_PRICE }}",
             icon: 'question',
             input: 'range',
             inputLabel: 'Pack duration',
