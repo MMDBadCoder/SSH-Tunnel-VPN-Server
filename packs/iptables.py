@@ -19,7 +19,7 @@ def register_new_chain(pack):
 
 def get_usage_of_pack_after_startup(pack):
     chain_name = create_chain_name(pack)
-    command = F'iptables -L -n -v | grep {chain_name} | head -n 2 | tr -s \' \' | cut -d\' \' -f3'
+    command = F'iptables -L -n -v | grep \' {chain_name} \' | head -n 2 | tr -s \' \' | cut -d\' \' -f3'
     command_output = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
     command_output = command_output.stdout.decode('utf-8').strip()
 
