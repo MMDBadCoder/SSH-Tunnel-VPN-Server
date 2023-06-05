@@ -15,6 +15,7 @@ def start_pack(modeladmin, request, queryset):
 def finish_pack(modeladmin, request, queryset):
     for pack in queryset.all():
         pack.finish()
+        pack.create_usage_factor()
 
 
 class PackAdmin(admin.ModelAdmin):

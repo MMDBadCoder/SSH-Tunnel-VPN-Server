@@ -94,7 +94,6 @@ class Pack(models.Model):
         self.finished = True
         self.save()
         self.flush_usage_of_after_startup()
-        self.create_usage_factor()
         os_user.remove_user(self.linux_username)
 
         # kill process os session
@@ -144,6 +143,7 @@ def check_finished_packs():
             passed_seconds = (datetime.datetime.now(datetime.timezone.utc) - pack.start_time).total_seconds()
             if passed_seconds > (pack.days * 24 * 60 * 60):
                 pack.finish()
+                pack.create_usage_factor()
 
 
 def init_sshd_services():
