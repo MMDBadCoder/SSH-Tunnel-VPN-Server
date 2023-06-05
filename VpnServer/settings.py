@@ -136,7 +136,9 @@ PORTS_START_FROM = 2200
 ############ IMPORTANT SETTINGS ##########
 ##########################################
 
-EACH_WEEK_PRICE = 10_000  # toman
+EACH_DAY_PRICE = 1_200  # toman
+VALID_RANGE_OF_DAYS = range(10, 90)
+EACH_GIG_PRICE = 1_000  # toman
 IDPAY_PAYMENT_PAGE_URL = 'https://idpay.ir/mmd10/shop/604235'
 HOSTNAME = 'hajmmd.ir'
 REBOOT_PERIOD_SECONDS = 24 * 60 * 60

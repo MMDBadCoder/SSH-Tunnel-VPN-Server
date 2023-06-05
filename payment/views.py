@@ -2,13 +2,15 @@ import json
 from datetime import datetime
 
 import pytz as pytz
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponseBadRequest, HttpResponse
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 
-from VpnServer.settings import EACH_WEEK_PRICE
+from VpnServer.settings import VALID_RANGE_OF_DAYS, EACH_DAY_PRICE
 from packs.models import Pack
-from payment.models import WebhookReports, PaymentKey
+from payment.models import WebhookReports, PaymentKey, Credit, PaymentFactor
 
 
 @csrf_exempt
@@ -28,15 +30,18 @@ def webhook(request, pay_key):
         timestamp = data['payment']['date']
         dt = datetime.fromtimestamp(int(timestamp), tz=pytz.timezone('Asia/Tehran'))
         print("Data of webhook request was extracted")
-        WebhookReports.objects.create(phone_number=phone, name=name, amount=amount, mail=mail, dt=dt, desc=desc)
+        webhook_report = WebhookReports(phone_number=phone, name=name, amount=amount, mail=mail, dt=dt, desc=desc)
+        webhook_report.save()
         print("Webhook report was generated")
         user = User.objects.filter(username=mail)
         if user.exists():
             print("Related user of this webhook was detected")
             user = user.first()
-            days = 7 * ((amount / 10) / EACH_WEEK_PRICE)
-            Pack.objects.create(user=user, days=days)
-            print("Pack was generated")
+            toman_amount = (amount / 10)
+            current_credit = Credit.get_credit(user)
+            new_credit = toman_amount + current_credit
+            Credit(reminded_credit=new_credit, user=user, payment_factor=None, webhook_report=webhook_report).save()
+            print("Credit was updated")
         else:
             print("------ User by this mail not found ------")
             print(mail)
@@ -45,3 +50,32 @@ def webhook(request, pay_key):
         print("Error at webhook:")
         print(e)
         return HttpResponseBadRequest("Only post available")
+
+
+@login_required
+def buy_pack(request, pack_days):
+    if pack_days not in VALID_RANGE_OF_DAYS:
+        return HttpResponseBadRequest("Requested days is not valid")
+
+    pack = Pack(user=request.user, days=pack_days)
+    needed_credit = EACH_DAY_PRICE * pack_days
+    factor = PaymentFactor(user=request.user, pay_for=PaymentFactor.PayFor.BUY_PACK, related_pack=pack,
+                           amount=needed_credit, payed=False)
+    if not factor.can_pay():
+        return HttpResponseBadRequest("Not enough credit to buy this pack")
+
+    pack.save()
+    factor.save()
+    factor.pay()
+
+    return redirect('user-home')
+
+
+def pay_factor(request, factor_id):
+    factor = PaymentFactor.objects.get(id=factor_id)
+    if factor.payed:
+        return HttpResponseBadRequest("This factor has been payed in past")
+    if not factor.can_pay():
+        return HttpResponseBadRequest("Not enough credit to pay this factor")
+    factor.pay()
+    return redirect('user-home')

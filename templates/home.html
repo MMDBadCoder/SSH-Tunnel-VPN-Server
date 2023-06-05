@@ -8,10 +8,12 @@
 
 
 <div class="ui secondary  menu" style="margin: 10px">
-    <a class="item" id="payment-link">
-        <i class="shopping cart icon blue large"></i>
-        <label style="color: #2185d0; font-weight: bold; font-size: 15px">Buy Pack</label>
-    </a>
+    <div class="ui" data-tooltip="Your Credit: {{ CREDIT }} toman" data-position="bottom right">
+        <a class="item" id="payment-link">
+            <i class="shopping cart icon blue large"></i>
+            <label style="color: #2185d0; font-weight: bold; font-size: 15px">Increase Credit</label>
+        </a>
+    </div>
     <div class="right menu">
 
         <a class="ui item">
@@ -29,7 +31,17 @@
 
 <div class="ui segment" style="margin: 10px">
 
-    <h1 class="ui header">Your packs</h1>
+    <div class="ui grid two column row">
+        <div class="column">
+            <h1 class="ui header">Your Factors</h1>
+        </div>
+        <div class="column">
+            <button class="ui green compact labeled icon button right floated">
+                <i class="add icon"></i>
+                New Pack
+            </button>
+        </div>
+    </div>
 
     <div class="ui inverted segment">
         <div class="ui inverted relaxed divided list">
@@ -37,6 +49,41 @@
                 {% include 'pack-item.html' with pack=pack HOSTNAME=HOSTNAME %}
             {% endfor %}
         </div>
+    </div>
+
+</div>
+
+<div class="ui segment" style="margin: 10px">
+
+    <h1 class="ui header">Your Factors</h1>
+
+    <div class="ui middle aligned divided list">
+        {% for factor in factors %}
+            <div class="item">
+                {% if factor.payed %}
+                    <i class="icon check green large"></i>
+                {% else %}
+                    <div class="right floated content">
+                        {% if factor.can_pay %}
+                            <a href="{% url 'user-pay-factor' factor.id %}">
+                                <button class="positive ui button">Pay</button>
+                            </a>
+                        {% else %}
+                            <button class="ui negative basic button">Not enough credit!</button>
+                        {% endif %}
+                    </div>
+                    <i class="icon close red large"></i>
+                {% endif %}
+                <div class="content">
+                    {% if factor.pay_for == 'UT' %}
+                        You used {{ factor.amount | filesizeformat }} traffic in pack {{ factor.related_pack.id }},
+                    {% elif factor.pay_for == 'BP' %}
+                        You bought pack {{ factor.related_pack.id }},
+                    {% endif %}
+                    it costs {{ factor.amount }} toman
+                </div>
+            </div>
+        {% endfor %}
     </div>
 
 </div>

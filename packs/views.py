@@ -8,15 +8,18 @@ from paramiko import SSHClient
 from VpnServer import settings
 from VpnServer.settings import HOSTNAME
 from packs.models import Pack
+from payment.models import Credit, PaymentFactor
 
 
 @login_required
 def home_view(request):
     data = {
-        'EACH_WEEK_PRICE': settings.EACH_WEEK_PRICE,
         'IDPAY_PAYMENT_PAGE_URL': settings.IDPAY_PAYMENT_PAGE_URL,
         'packs': Pack.objects.filter(user=request.user).order_by('-id'),
-        'HOSTNAME': settings.HOSTNAME
+        'factors': PaymentFactor.objects.filter(user=request.user).order_by('-id'),
+        'HOSTNAME': settings.HOSTNAME,
+        'CREDIT': Credit.get_credit(request.user),
+        'NOT_PAYED_FACTOR': PaymentFactor.objects.filter(user=request.user, payed=False)
     }
 
     return render(request, 'home.html', data)

@@ -10,7 +10,7 @@ import time
 from django.contrib.auth.models import User
 from django.db import models
 
-from VpnServer.settings import PORTS_START_FROM
+from VpnServer.settings import PORTS_START_FROM, EACH_GIG_PRICE
 from . import os_user
 from .iptables import register_new_chain, get_usage_of_pack_after_startup
 
@@ -94,6 +94,7 @@ class Pack(models.Model):
         self.finished = True
         self.save()
         self.flush_usage_of_after_startup()
+        self.create_usage_factor()
         os_user.remove_user(self.linux_username)
 
         # kill process os session
@@ -104,6 +105,12 @@ class Pack(models.Model):
             except Exception as e:
                 print(f"Failed at finishing pack {self.id}")
                 print(e)
+
+    def create_usage_factor(self):
+        from payment.models import PaymentFactor
+        pay_amount = EACH_GIG_PRICE * self.usage / 1_000_000_000
+        PaymentFactor(related_pack=self, user=self.user, amount=pay_amount,
+                      pay_for=PaymentFactor.PayFor.TRAFFIC_USAGE, payed=False).save()
 
     def connection_count(self):
         command = f"ps ax | grep '{self.linux_username} \[priv\]'"
