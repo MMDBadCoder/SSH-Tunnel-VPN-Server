@@ -93,7 +93,6 @@ class Pack(models.Model):
         self.started = True
         self.finished = True
         self.save()
-        self.flush_usage_of_after_startup()
         os_user.remove_user(self.linux_username)
 
         # kill process os session
@@ -106,6 +105,7 @@ class Pack(models.Model):
                 print(e)
 
     def create_usage_factor(self):
+        self.flush_usage_of_after_startup()
         from payment.models import PaymentFactor
         pay_amount = EACH_GIG_PRICE * self.usage / 2 ** 30
         PaymentFactor(related_pack=self, user=self.user, amount=pay_amount,
