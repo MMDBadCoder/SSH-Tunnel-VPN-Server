@@ -1,4 +1,6 @@
-sudo apt update
+apt update
+
+apt-get install iptables -y
 
 apt install python3-venv -y
 

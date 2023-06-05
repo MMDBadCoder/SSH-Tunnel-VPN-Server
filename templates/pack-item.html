@@ -230,27 +230,6 @@
                     con_devs_div.text("Connected devices: " + count);
                     con_devs_div.css('color', color);
                 </script>
-            {% else %}
-                Not started yet
-            {% endif %}
-        </div><div class="description">
-            {% if pack.finished %}
-                Expired
-            {% elif pack.started %}
-                In use, Started from {{ pack.start_time | timesince }} ago
-                <div id="pack{{ pack.id }}-connected-devices"></div>
-                <script>
-                    con_devs_div = $("#pack{{ pack.id }}-connected-devices");
-                    count = {{ pack.connection_count }};
-                    color = 'lightsalmon';
-                    if (count > 1) {
-                        color = 'lime'
-                    } else if (count === 1) {
-                        color = 'gold';
-                    }
-                    con_devs_div.text("Connected devices: " + count);
-                    con_devs_div.css('color', color);
-                </script>
                 <div style="color: #2185d0">usage: {{ pack.get_usage | filesizeformat}}</div>
             {% else %}
                 Not started yet
