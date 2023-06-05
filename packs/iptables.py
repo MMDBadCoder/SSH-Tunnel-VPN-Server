@@ -6,7 +6,7 @@ def create_chain_name(pack):
 
 
 def register_new_chain(pack):
-    if get_usage_of_pack_after_startup(pack) is not None:
+    if get_usage_of_pack_after_startup(pack) != 0:
         return
     chain_name = create_chain_name(pack)
     command = f"iptables -N {chain_name}"
