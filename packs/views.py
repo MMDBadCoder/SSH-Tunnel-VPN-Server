@@ -2,27 +2,10 @@ import paramiko
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
-from django.shortcuts import render
 from paramiko import SSHClient
 
-from VpnServer import settings
 from VpnServer.settings import HOSTNAME
 from packs.models import Pack
-from payment.models import Credit, PaymentFactor
-
-
-@login_required
-def home_view(request):
-    data = {
-        'IDPAY_PAYMENT_PAGE_URL': settings.IDPAY_PAYMENT_PAGE_URL,
-        'packs': Pack.objects.filter(user=request.user).order_by('-id'),
-        'factors': PaymentFactor.objects.filter(user=request.user).order_by('-id'),
-        'HOSTNAME': settings.HOSTNAME,
-        'CREDIT': Credit.get_credit(request.user),
-        'NOT_PAYED_FACTOR': PaymentFactor.objects.filter(user=request.user, payed=False)
-    }
-
-    return render(request, 'home.html', data)
 
 
 @login_required
@@ -74,17 +57,4 @@ def restart_pack(request, pack_id):
         return HttpResponseBadRequest("Pack is not active.")
     pack.finish()
     pack.run_pack()
-    return redirect('user-home')
-
-
-@login_required
-def delete_pack(request, pack_id):
-    pack = Pack.objects.get(id=pack_id)
-    if request.user != pack.user and not request.user.is_staff:
-        return HttpResponseBadRequest("No permission")
-
-    if not pack.finished:
-        return HttpResponseBadRequest("Can't delete not finished pack")
-
-    pack.delete()
     return redirect('user-home')

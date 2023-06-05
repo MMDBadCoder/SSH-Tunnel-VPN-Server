@@ -108,7 +108,7 @@ class Pack(models.Model):
 
     def create_usage_factor(self):
         from payment.models import PaymentFactor
-        pay_amount = EACH_GIG_PRICE * self.usage / 1_000_000_000
+        pay_amount = EACH_GIG_PRICE * self.usage / 2 ** 30
         PaymentFactor(related_pack=self, user=self.user, amount=pay_amount,
                       pay_for=PaymentFactor.PayFor.TRAFFIC_USAGE, payed=False).save()
 

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load humanize %}
 <html lang="en">
 <head>
     <title>Home</title>
@@ -8,12 +9,11 @@
 
 
 <div class="ui secondary  menu" style="margin: 10px">
-    <div class="ui" data-tooltip="Your Credit: {{ CREDIT }} toman" data-position="bottom right">
-        <a class="item" id="payment-link">
-            <i class="shopping cart icon blue large"></i>
-            <label style="color: #2185d0; font-weight: bold; font-size: 15px">Increase Credit</label>
-        </a>
-    </div>
+
+    <a class="item" id="payment-link">
+        <i class="dollar cart icon blue large"></i>
+        <label style="color: #2185d0; font-weight: bold; font-size: 15px">{{ CREDIT | intcomma }} tomans</label>
+    </a>
     <div class="right menu">
 
         <a class="ui item">
@@ -36,7 +36,7 @@
             <h1 class="ui header">Your Factors</h1>
         </div>
         <div class="column">
-            <button class="ui green compact labeled icon button right floated">
+            <button class="ui green compact labeled icon button right floated" id="new-pack">
                 <i class="add icon"></i>
                 New Pack
             </button>
@@ -72,15 +72,23 @@
                             <button class="ui negative basic button">Not enough credit!</button>
                         {% endif %}
                     </div>
-                    <i class="icon close red large"></i>
+                    <i class="icon info orange large"></i>
+
                 {% endif %}
                 <div class="content">
-                    {% if factor.pay_for == 'UT' %}
-                        You used {{ factor.amount | filesizeformat }} traffic in pack {{ factor.related_pack.id }},
+                    {% if not factor.payed %}
+                        <label style="color: orangered">Not Payed Factor, </label>
+                    {% else %}
+                        <label style="color: darkgreen">Payed Factor, </label>
+                    {% endif %}
+
+                    {% if factor.pay_for == 'TU' %}
+                        You used {{ factor.related_pack.usage | filesizeformat }} traffic in pack
+                        {{ factor.related_pack.id }},
                     {% elif factor.pay_for == 'BP' %}
                         You bought pack {{ factor.related_pack.id }},
                     {% endif %}
-                    it costs {{ factor.amount }} toman
+                    it cost {{ factor.amount | intcomma }} tomans
                 </div>
             </div>
         {% endfor %}
@@ -94,7 +102,7 @@
 <script>
     function click_payment_link() {
         Swal.fire({
-            title: '<h1>Pay through this link</h1>' +
+            title: '<h1>Increase your credit through this link</h1>' +
                 '<h3>(Be careful to enter this email for payment)</h3>' +
                 '<h3 style="font-weight: bold; color: green">{{ user.email }}</h3>',
             showCancelButton: true,
@@ -110,5 +118,65 @@
     }
 
     $("#payment-link").click(click_payment_link);
+</script>
+
+
+<script>
+    async function new_pack_click() {
+
+        {% if NOT_PAYED_FACTOR %}
+            Swal.fire({
+                icon: 'error',
+                title: 'You have some not payed factors!',
+                text: 'Please pay them first.',
+            })
+            return;
+        {% endif %}
+
+        const {value: days_count} = await Swal.fire({
+            title: 'How many days pack do you want?',
+            icon: 'question',
+            input: 'range',
+            inputLabel: 'Pack duration',
+            inputAttributes: {
+                min: {{ PACK_VALID_RANGE.start }},
+                max: {{ PACK_VALID_RANGE.stop }} -1,
+                step: 1
+            },
+            inputValue: 30
+        });
+        if (days_count) {
+            $.post('/payment/new-pack/' + days_count + '/')
+                .done(function () {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'center',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Your new pack was created successfully!'
+                    });
+                    setTimeout(function () {
+                        location.reload(true);
+                    }, 2000);
+                })
+                .fail(function (jqxhr, settings, ex) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: jqxhr.responseText,
+                    })
+                });
+        }
+    }
+
+    $("#new-pack").click(new_pack_click);
 </script>
 

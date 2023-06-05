@@ -1,11 +1,6 @@
 <div class="item">
 
     {% if pack.finished %}
-        <div class="right floated content">
-            <a href="{% url 'user-pack-delete' pack.id %}">
-                <button class="negative ui button">Delete</button>
-            </a>
-        </div>
         <i class="icon close red large"></i>
     {% elif pack.started %}
         <div class="right floated content">
@@ -230,9 +225,11 @@
                     con_devs_div.text("Connected devices: " + count);
                     con_devs_div.css('color', color);
                 </script>
-                <div style="color: #2185d0">usage: {{ pack.get_usage | filesizeformat}}</div>
             {% else %}
                 Not started yet
+            {% endif %}
+            {% if pack.started %}
+                <div style="color: #2185d0">usage: {{ pack.get_usage | filesizeformat }}</div>
             {% endif %}
         </div>
     </div>

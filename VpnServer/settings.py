@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'accounting',
     'packs',
     'payment',
@@ -137,7 +138,7 @@ PORTS_START_FROM = 2200
 ##########################################
 
 EACH_DAY_PRICE = 1_200  # toman
-VALID_RANGE_OF_DAYS = range(10, 90)
+VALID_RANGE_OF_DAYS = range(10, 91)
 EACH_GIG_PRICE = 1_000  # toman
 IDPAY_PAYMENT_PAGE_URL = 'https://idpay.ir/mmd10/shop/604235'
 HOSTNAME = 'hajmmd.ir'

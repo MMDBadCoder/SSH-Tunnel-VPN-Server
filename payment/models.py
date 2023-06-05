@@ -47,7 +47,7 @@ class PaymentFactor(models.Model):
     payed = models.BooleanField(default=False)
 
     def can_pay(self):
-        if Credit.get_credit(self.user) > self.amount:
+        if Credit.get_credit(self.user) >= self.amount:
             return True
 
     def pay(self):
@@ -61,12 +61,13 @@ class PaymentFactor(models.Model):
 class Credit(models.Model):
     reminded_credit = models.IntegerField(default=0, blank=False, null=False)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
-    payment_factor = models.ForeignKey(to=PaymentFactor, on_delete=models.SET_NULL, null=True)
-    webhook_report = models.ForeignKey(to=WebhookReports, default=None, null=True, on_delete=models.SET_NULL)
+    payment_factor = models.ForeignKey(to=PaymentFactor, on_delete=models.SET_NULL, null=True, blank=True)
+    webhook_report = models.ForeignKey(to=WebhookReports, default=None, on_delete=models.SET_NULL, null=True,
+                                       blank=True)
 
     @staticmethod
     def get_credit(user):
         query = Credit.objects.filter(user=user)
         if not query.exists():
             return 0
-        return query.last().reminded
+        return query.last().reminded_credit

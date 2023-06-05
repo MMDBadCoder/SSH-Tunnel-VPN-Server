@@ -53,7 +53,11 @@ def webhook(request, pay_key):
 
 
 @login_required
-def buy_pack(request, pack_days):
+@csrf_exempt
+def buy_new_pack(request, pack_days):
+    if PaymentFactor.objects.filter(user=request.user, payed=False).exists():
+        return HttpResponseBadRequest("You have some not payed factors!")
+
     if pack_days not in VALID_RANGE_OF_DAYS:
         return HttpResponseBadRequest("Requested days is not valid")
 
@@ -68,11 +72,14 @@ def buy_pack(request, pack_days):
     factor.save()
     factor.pay()
 
-    return redirect('user-home')
+    return HttpResponse(status=200)
 
 
+@login_required
 def pay_factor(request, factor_id):
     factor = PaymentFactor.objects.get(id=factor_id)
+    if factor.user != request.user:
+        return HttpResponseBadRequest("No permission")
     if factor.payed:
         return HttpResponseBadRequest("This factor has been payed in past")
     if not factor.can_pay():
