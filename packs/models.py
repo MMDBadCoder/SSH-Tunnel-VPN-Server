@@ -120,6 +120,8 @@ class Pack(models.Model):
         return len(result.split('\n'))
 
     def get_usage(self):
+        if self.finished:
+            return self.usage
         return self.usage + get_usage_of_pack_after_startup(self)
 
     def flush_usage_of_after_startup(self):
