@@ -5,7 +5,7 @@ from time import sleep
 from django.core.wsgi import get_wsgi_application
 
 from VpnServer.settings import REBOOT_PERIOD_SECONDS
-from packs.models import check_finished_packs, init_sshd_services
+from packs.models import check_finished_packs, init_sshd_services, Pack
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VpnServer.settings')
 
@@ -19,6 +19,8 @@ init_sshd_services()
 def reboot_os():
     sleep(REBOOT_PERIOD_SECONDS)
     import os
+    for pack in Pack.objects.filter(started=True, finished=False):
+        pack.flush_usage_of_after_startup()
     os.system('reboot')
 
 

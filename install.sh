@@ -1,13 +1,5 @@
 sudo apt update
 
-sudo apt install ufw -y
-sudo ufw allow 80
-sudo ufw allow 22
-for port in $(cat /etc/ssh/sshd_config | grep "^Port" | cut -d' ' -f2); do
-  sudo ufw allow $port
-done
-echo 'y' | sudo ufw enable
-
 apt install python3-venv -y
 
 python3 -m venv venv

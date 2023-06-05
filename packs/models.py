@@ -12,6 +12,7 @@ from django.db import models
 
 from VpnServer.settings import PORTS_START_FROM
 from . import os_user
+from .iptables import register_new_chain, get_usage_of_pack_after_startup
 
 
 class Pack(models.Model):
@@ -25,6 +26,7 @@ class Pack(models.Model):
     finished = models.BooleanField(default=False)
     session_pid = models.IntegerField(default=-1, blank=False, null=False)
     specific_ssh_configs = models.TextField(max_length=1000, blank=True, null=False, default='')
+    usage = models.IntegerField(default=0, null=False, blank=False)
 
     def __str__(self):
         return self.user.first_name + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'
@@ -61,6 +63,7 @@ class Pack(models.Model):
             self.port = self.get_first_free_port()
         self.save()
         os_user.add_user(self.linux_username, self.linux_password)
+        register_new_chain(self)
         self.create_ssh_session()
 
     def create_ssh_session(self):
@@ -86,13 +89,11 @@ class Pack(models.Model):
             self.session_pid = int(pid_of_ssh)
             self.save()
 
-        # open port by ufw
-        subprocess.call(['ufw', 'allow', str(self.port) + '/tcp'])
-
     def finish(self):
         self.started = True
         self.finished = True
         self.save()
+        self.flush_usage_of_after_startup()
         os_user.remove_user(self.linux_username)
 
         # kill process os session
@@ -104,9 +105,6 @@ class Pack(models.Model):
                 print(f"Failed at finishing pack {self.id}")
                 print(e)
 
-        # close session port by ufw
-        subprocess.call(['ufw', 'deny', str(self.port) + '/tcp'])
-
     def connection_count(self):
         command = f"ps ax | grep '{self.linux_username} \[priv\]'"
         result = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
@@ -114,6 +112,13 @@ class Pack(models.Model):
         if result == '':
             return 0
         return len(result.split('\n'))
+
+    def get_usage(self):
+        return self.usage + get_usage_of_pack_after_startup(self)
+
+    def flush_usage_of_after_startup(self):
+        self.usage += get_usage_of_pack_after_startup(self)
+        self.save()
 
     @staticmethod
     def all_connection_count():
