@@ -65,6 +65,12 @@ class Credit(models.Model):
     webhook_report = models.ForeignKey(to=WebhookReports, default=None, on_delete=models.SET_NULL, null=True,
                                        blank=True)
 
+    def __str__(self):
+        tag = str(self.id)
+        if Credit.objects.filter(user=self.user).last() == self:
+            tag = 'latest'
+        return self.user.first_name + '-credit-' + tag
+
     @staticmethod
     def get_credit(user):
         query = Credit.objects.filter(user=user)
