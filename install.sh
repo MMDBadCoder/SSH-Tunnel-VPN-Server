@@ -35,11 +35,7 @@ chmod +x runserver.sh
 chmod +x adduser.sh
 chmod +x uninstall.sh
 
-echo "#############################################"
-echo "############# Create Admin User #############"
-echo "#############################################"
-python manage.py createsuperuser
-echo "############# You can create another admin user by executing ./adduser.sh #############"
+echo "############# You can create admin user by executing ./adduser.sh #############"
 
 systemctl daemon-reload
 systemctl enable --now mmdvpn
