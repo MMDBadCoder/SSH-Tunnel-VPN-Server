@@ -7,6 +7,7 @@ from django.shortcuts import render
 from VpnServer import settings
 from VpnServer.settings import VALID_RANGE_OF_DAYS
 from accounting.forms import UserRegisterForm
+from admin_panel.models import HomeMessage
 from packs.models import Pack
 from payment.models import Credit, PaymentFactor
 
@@ -79,7 +80,8 @@ def home_view(request):
         'CREDIT': Credit.get_credit(request.user),
         'PACK_VALID_RANGE': VALID_RANGE_OF_DAYS,
         'NOT_PAYED_FACTOR': PaymentFactor.objects.filter(user=request.user, payed=False),
-        'EACH_DAY_PRICE': settings.EACH_DAY_PRICE
+        'EACH_DAY_PRICE': settings.EACH_DAY_PRICE,
+        'messages': HomeMessage.objects.all()
     }
 
     return render(request, 'home.html', data)

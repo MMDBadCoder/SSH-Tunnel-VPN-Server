@@ -29,6 +29,31 @@
     </div>
 </div>
 
+{% if messages %}
+
+    <div class="ui segment" style="margin: 10px">
+        {% for message in messages %}
+            <div class="ui {{ message.type }} message">
+                <i class="close icon"></i>
+                <div class="header">
+                    {{ message.title }}
+                </div>
+                <p>{{ message.message }}</p>
+            </div>
+            <script>
+                $('.message .close')
+                    .on('click', function () {
+                        $(this)
+                            .closest('.message')
+                            .fadeOut()
+                        ;
+                    });
+            </script>
+        {% endfor %}
+    </div>
+{% endif %}
+
+
 <div class="ui segment" style="margin: 10px">
 
     <div class="ui grid two column row">
