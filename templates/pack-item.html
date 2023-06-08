@@ -1,5 +1,9 @@
 <div class="item">
 
+{% if pack.label %}
+    <h3 style="color: gold">{{ pack.label }}</h3>
+{% endif %}
+
     {% if pack.finished %}
         <i class="icon close red large"></i>
     {% elif pack.started %}
@@ -233,5 +237,9 @@
             {% endif %}
         </div>
     </div>
+
+{% if pack.free_traffic %}
+    <label style="color: lawngreen; font-weight: lighter">Free Traffic</label>
+{% endif %}
 
 </div>

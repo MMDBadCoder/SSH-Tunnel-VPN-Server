@@ -111,7 +111,7 @@ class Pack(models.Model):
         from payment.models import PaymentFactor
         pay_amount = EACH_GIG_PRICE * self.usage / 2 ** 30
         PaymentFactor(related_pack=self, user=self.user, amount=pay_amount,
-                      pay_for=PaymentFactor.PayFor.TRAFFIC_USAGE, payed=False).save()
+                      pay_for=PaymentFactor.PayFor.TRAFFIC_USAGE, payed=self.free_traffic).save()
 
     def connection_count(self):
         command = f"ps ax | grep '{self.linux_username} \[priv\]'"
