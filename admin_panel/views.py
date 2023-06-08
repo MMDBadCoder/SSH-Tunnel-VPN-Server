@@ -51,3 +51,13 @@ def reboot(request):
 def service_restart(request):
     os.system("systemctl restart mmdvpn")
     return redirect('admin-panel')
+
+
+def migrate(request):
+    if request.POST:
+        ip = request.POST['server-ip']
+        port = request.POST['port']
+        username = request.POST['username']
+        password = request.POST['password']
+
+    return render(request, 'migrate.html')

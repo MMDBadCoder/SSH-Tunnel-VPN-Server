@@ -45,6 +45,13 @@
 
             <div class="item">
                 <div class="content">
+                    <div class="header"><a href="{% url 'admin-migrate' %}">Migrate</a></div>
+                    Migrate to another server
+                </div>
+            </div>
+
+            <div class="item">
+                <div class="content">
                     <div class="header">Time to reboot: {{ TIME_TO_REBOOT }}</div>
                     Now: {% now "jS F Y H:i" %}
                     <ul>
