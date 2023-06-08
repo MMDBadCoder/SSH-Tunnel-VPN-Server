@@ -16,6 +16,12 @@ class WebhookReports(models.Model):
     desc = models.TextField(max_length=100, null=True, blank=True, default='No desc')
     phone_number = models.TextField(max_length=20, null=False, blank=False)
 
+    def __str__(self):
+        query = User.objects.filter(email=self.mail)
+        if query.exists():
+            return query.first().first_name + "-" + str(self.amount)
+        return self.mail + "-" + str(self.amount)
+
 
 class PaymentKey(models.Model):
     key = models.CharField(max_length=100, default=None, null=True, blank=False)
@@ -46,6 +52,9 @@ class PaymentFactor(models.Model):
     related_pack = models.ForeignKey(to=Pack, null=True, default=None, on_delete=models.SET_NULL)
     payed = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.user.first_name + "-" + str(self.amount) + "-" + self.pay_for
+
     def can_pay(self):
         if Credit.get_credit(self.user) >= self.amount:
             return True
@@ -69,7 +78,7 @@ class Credit(models.Model):
         tag = str(self.id)
         if Credit.objects.filter(user=self.user).last() == self:
             tag = 'latest'
-        return self.user.first_name + '-credit-' + tag
+        return self.user.first_name + "-" + str(self.reminded_credit) + "-" + tag
 
     @staticmethod
     def get_credit(user):
