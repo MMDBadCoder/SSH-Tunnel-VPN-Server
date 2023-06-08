@@ -17,11 +17,14 @@ init_sshd_services()
 
 
 def reboot_os():
-    sleep(REBOOT_PERIOD_SECONDS)
-    import os
     for pack in Pack.objects.filter(started=True, finished=False):
         pack.flush_usage_of_after_startup()
     os.system('reboot')
 
 
-threading.Thread(target=reboot_os, daemon=True).start()
+def reboot_thread():
+    sleep(REBOOT_PERIOD_SECONDS)
+    reboot_os()
+
+
+threading.Thread(target=reboot_thread, daemon=True).start()

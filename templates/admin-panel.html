@@ -24,13 +24,6 @@
 
             <div class="item">
                 <div class="content">
-                    <div class="header">Time to reboot:</div>
-                    {{ TIME_TO_REBOOT }}
-                </div>
-            </div>
-
-            <div class="item">
-                <div class="content">
                     <div class="header"><a href="{% url 'backup-page' %}">Backup dashboard</a></div>
                     Download && Inject db.sqlite file
                 </div>
@@ -49,6 +42,18 @@
                     http://{{ HOSTNAME }}{% url 'idpay-webhook' PAYMENT_WEB_HOOK %}
                 </div>
             </div>
+
+            <div class="item">
+                <div class="content">
+                    <div class="header">Time to reboot: {{ TIME_TO_REBOOT }}</div>
+                    Now: {% now "jS F Y H:i" %}
+                    <ul>
+                        <li><a href="{% url 'admin-reboot' %}">Reboot now</a></li>
+                        <li><a href="{% url 'admin-service-restart' %}">Restart vpn service</a></li>
+                    </ul>
+                </div>
+            </div>
+
         </div>
     </div>
 

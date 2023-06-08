@@ -1,10 +1,13 @@
+import os
 import time
 from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
 
 from VpnServer.settings import HOSTNAME, STARTUP_TIME, REBOOT_PERIOD_SECONDS
+from VpnServer.wsgi import reboot_os
 from packs.models import Pack
 from payment.models import PaymentKey
 
@@ -35,3 +38,16 @@ def active_packs(request):
     }
 
     return render(request, 'active-packs.html', data)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def reboot(request):
+    reboot_os()
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def service_restart(request):
+    os.system("systemctl restart mmdvpn")
+    return redirect('admin-panel')
