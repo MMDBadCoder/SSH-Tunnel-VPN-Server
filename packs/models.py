@@ -27,6 +27,8 @@ class Pack(models.Model):
     session_pid = models.IntegerField(default=-1, blank=False, null=False)
     specific_ssh_configs = models.TextField(max_length=1000, blank=True, null=False, default='')
     usage = models.IntegerField(default=0, null=False, blank=False)
+    label = models.CharField(max_length=1000, default=None, blank=True, null=True)
+    free_traffic = models.BooleanField(default=False, null=False, blank=False)
 
     def __str__(self):
         return self.user.first_name + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'

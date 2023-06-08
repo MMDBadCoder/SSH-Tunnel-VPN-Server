@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'accounting',
     'packs',
     'payment',
-    'backup_system'
+    'backup_system',
+    'admin_panel'
 ]
 
 MIDDLEWARE = [
