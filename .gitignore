@@ -274,3 +274,7 @@ test.sh
 ./db.sqlite3
 
 *.pyo
+
+
+./archive
+archive

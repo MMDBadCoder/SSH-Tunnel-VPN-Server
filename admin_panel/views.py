@@ -1,4 +1,5 @@
 import os
+import shutil
 import time
 from datetime import timedelta
 
@@ -59,5 +60,16 @@ def migrate(request):
         port = request.POST['port']
         username = request.POST['username']
         password = request.POST['password']
+
+        archive_folder_name = 'archive'
+        if os.path.exists(archive_folder_name):
+            shutil.rmtree(archive_folder_name)
+        os.mkdir(archive_folder_name)
+        for file_dir_name in os.listdir('.'):
+            if file_dir_name not in ['venv'] and not file_dir_name.startswith('.'):
+                if os.path.isdir(file_dir_name):
+                    shutil.copytree(file_dir_name, archive_folder_name + '/' + file_dir_name)
+                else:
+                    shutil.copy(file_dir_name, archive_folder_name)
 
     return render(request, 'migrate.html')
