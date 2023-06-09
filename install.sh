@@ -7,8 +7,6 @@ apt install python3-venv -y
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-rm db.sqlite3
-python manage.py makemigrations
 python manage.py migrate
 
 python_file=$(pwd)/venv/bin/python
