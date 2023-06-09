@@ -72,4 +72,6 @@ def migrate(request):
                 else:
                     shutil.copy(file_dir_name, archive_folder_name)
 
+
+
     return render(request, 'migrate.html')
