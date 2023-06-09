@@ -97,6 +97,8 @@ class Pack(models.Model):
         self.save()
         os_user.remove_user(self.linux_username)
 
+        self.flush_usage_of_after_startup()
+
         # kill process os session
         if self.session_pid != -1:
             try:
