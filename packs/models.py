@@ -176,7 +176,7 @@ class TempUsageTraffic(models.Model):
 
     @staticmethod
     def update_temp_usage_of_all_packs():
-        for pack in Pack.objects.filter(started=False, finished=False):
+        for pack in Pack.get_active_packs():
             TempUsageTraffic.get_temp_usage_of_pack(pack).update_usage()
 
 
