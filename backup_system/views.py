@@ -32,7 +32,7 @@ def backup_inject(request):
         for chunk in uploaded_db.chunks():
             destination.write(chunk)
 
-    return redirect('backup-page')
+    return redirect('admin-service-restart')
 
 
 @login_required
