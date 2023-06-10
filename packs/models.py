@@ -95,13 +95,7 @@ class Pack(models.Model):
             self.session_pid = int(pid_of_ssh)
             self.save()
 
-    def finish(self):
-        self.started = True
-        self.finished = True
-        self.save()
-        os_user.remove_user(self.linux_username)
-
-        # kill process os session
+    def kill_ssh_session(self):
         if self.session_pid != -1:
             try:
                 os.kill(self.session_pid, 9)
@@ -109,6 +103,13 @@ class Pack(models.Model):
             except Exception as e:
                 print(f"Failed at finishing pack {self.id}")
                 print(e)
+
+    def finish(self):
+        self.started = True
+        self.finished = True
+        self.save()
+        os_user.remove_user(self.linux_username)
+        self.kill_ssh_session()
 
     def create_usage_factor(self):
         self.flush_usage_of_after_startup()
@@ -190,8 +191,6 @@ def check_finished_packs():
 
 
 def init_active_packs_sessions():
-    TempUsageTraffic.flush_all()
-
     ssh_configs_folder = "ssh_configs"
     if not os.path.exists(ssh_configs_folder):
         os.makedirs(ssh_configs_folder)
