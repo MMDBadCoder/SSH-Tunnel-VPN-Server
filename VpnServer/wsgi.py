@@ -25,7 +25,7 @@ def reboot_thread():
 
 def update_temp_usage_thread():
     while True:
-        sleep(60)
+        sleep(60 * 30)
         TempUsageTraffic.update_temp_usage_of_all_packs()
 
 
