@@ -4,16 +4,12 @@ from time import sleep
 
 from django.core.wsgi import get_wsgi_application
 
-from VpnServer.settings import REBOOT_PERIOD_SECONDS
+from VpnServer.settings import REBOOT_PERIOD_SECONDS, RUNNING_SERVER
 from packs.models import check_finished_packs, init_active_packs_sessions, Pack
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VpnServer.settings')
 
 application = get_wsgi_application()
-
-threading.Thread(target=check_finished_packs, daemon=True).start()
-
-init_active_packs_sessions()
 
 
 def reboot_os():
@@ -27,4 +23,7 @@ def reboot_thread():
     reboot_os()
 
 
-threading.Thread(target=reboot_thread, daemon=True).start()
+if RUNNING_SERVER:
+    threading.Thread(target=check_finished_packs, daemon=True).start()
+    init_active_packs_sessions()
+    threading.Thread(target=reboot_thread, daemon=True).start()

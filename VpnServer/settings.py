@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 import time
 from pathlib import Path
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -132,12 +133,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/account/login/'
 
-PORTS_START_FROM = 2200
+RUNNING_SERVER = (len(sys.argv) > 1 and sys.argv[1] == 'runserver')
 
 ##########################################
 ############ IMPORTANT SETTINGS ##########
 ##########################################
 
+PORTS_START_FROM = 2200
 EACH_DAY_PRICE = 1_200  # toman
 VALID_RANGE_OF_DAYS = range(10, 91)
 EACH_GIG_PRICE = 1_000  # toman
