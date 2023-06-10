@@ -1,8 +1,6 @@
 from django.contrib import admin
 
-from packs.models import Pack
-
-from django.contrib import admin
+from packs.models import Pack, TempUsageTraffic
 
 
 @admin.action(description="Start pack")
@@ -24,3 +22,8 @@ class PackAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Pack, PackAdmin)
+
+
+@admin.register(TempUsageTraffic)
+class TempUsageTrafficAdmin(admin.ModelAdmin):
+    pass
