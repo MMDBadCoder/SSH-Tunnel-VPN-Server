@@ -147,7 +147,7 @@ class Pack(models.Model):
 
 class TempUsageTraffic(models.Model):
     usage = models.IntegerField(default=0, null=False, blank=False)
-    pack = models.ForeignKey(to=Pack, null=False, blank=False)
+    pack = models.ForeignKey(to=Pack, null=False, blank=False, on_delete=models.CASCADE)
 
     def flush(self):
         self.pack.usage += self.usage
