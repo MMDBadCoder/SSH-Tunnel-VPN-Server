@@ -7,10 +7,10 @@ class GiftPack(models.Model):
     free_traffic = models.BooleanField(default=False, blank=False, null=False)
     all_users = models.BooleanField(default=False, blank=False, null=False)
     active_users = models.BooleanField(default=True, blank=False, null=False)
-    label = models.CharField(max_length=100, default=None, null=True, blank=True)
+    title = models.CharField(max_length=100, default=None, null=True, blank=True)
 
     def __str__(self):
-        return 'gift' + str(self.id) + '-' + self.label
+        return 'gift' + str(self.id) + '-' + self.title
 
 
 class HomeMessage(models.Model):

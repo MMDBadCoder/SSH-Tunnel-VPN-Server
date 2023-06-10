@@ -18,7 +18,7 @@ def grant_gifts(modeladmin, request, queryset):
         else:
             users = []
         for user in users:
-            Pack.objects.create(user=user, days=gift.days, free_traffic=gift.free_traffic, label=gift.label)
+            Pack.objects.create(user=user, days=gift.days, free_traffic=gift.free_traffic, label=gift.title)
 
 
 class GiftPackAdmin(admin.ModelAdmin):
