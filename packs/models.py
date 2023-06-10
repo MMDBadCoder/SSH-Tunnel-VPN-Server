@@ -35,7 +35,7 @@ class Pack(models.Model):
 
     @staticmethod
     def get_first_free_port():
-        active_packs = list(Pack.objects.filter(started=True, finished=False).values('port'))
+        active_packs = list(Pack.get_active_packs().values('port'))
         packs_ports = [pack['port'] for pack in active_packs]
 
         def is_port_is_use(port):
@@ -50,6 +50,10 @@ class Pack(models.Model):
                 break
             current_port += 1
         return current_port
+
+    @staticmethod
+    def get_active_packs():
+        return Pack.objects.filter(started=True, finished=False)
 
     def run_pack(self):
         if self.start_time is None:
@@ -97,8 +101,6 @@ class Pack(models.Model):
         self.save()
         os_user.remove_user(self.linux_username)
 
-        self.flush_usage_of_after_startup()
-
         # kill process os session
         if self.session_pid != -1:
             try:
@@ -129,6 +131,7 @@ class Pack(models.Model):
         return self.usage + get_usage_of_pack_after_startup(self)
 
     def flush_usage_of_after_startup(self):
+        TempUsageTraffic.objects.filter(pack=self).delete()
         self.usage += get_usage_of_pack_after_startup(self)
         self.save()
 
@@ -142,17 +145,53 @@ class Pack(models.Model):
         return len(result.split('\n'))
 
 
+class TempUsageTraffic(models.Model):
+    usage = models.IntegerField(default=0, null=False, blank=False)
+    pack = models.ForeignKey(to=Pack, null=False, blank=False)
+
+    def flush(self):
+        self.pack.usage += self.usage
+        self.pack.save()
+        self.delete()
+
+    def update_usage(self):
+        self.usage = get_usage_of_pack_after_startup(self.pack)
+        self.save()
+
+    @staticmethod
+    def get_temp_usage_of_pack(pack: Pack):
+        query = TempUsageTraffic.objects.filter(pack=pack)
+        if query.exists():
+            return query.first()
+        temp_usage = TempUsageTraffic(pack=pack)
+        temp_usage.save()
+        temp_usage.update_usage()
+        return temp_usage
+
+    @staticmethod
+    def flush_all():
+        for tempTraffic in TempUsageTraffic.objects.all():
+            tempTraffic.flush()
+
+    @staticmethod
+    def update_temp_usage_of_all_packs():
+        for pack in Pack.objects.filter(started=False, finished=False):
+            TempUsageTraffic.get_temp_usage_of_pack(pack).update_usage()
+
+
 def check_finished_packs():
     while True:
         time.sleep(60 * 60)
-        for pack in Pack.objects.filter(started=True, finished=False):
+        for pack in Pack.get_active_packs():
             passed_seconds = (datetime.datetime.now(datetime.timezone.utc) - pack.start_time).total_seconds()
             if passed_seconds > (pack.days * 24 * 60 * 60):
                 pack.finish()
                 pack.create_usage_factor()
 
 
-def init_sshd_services():
+def init_active_packs_sessions():
+    TempUsageTraffic.flush_all()
+
     ssh_configs_folder = "ssh_configs"
     if not os.path.exists(ssh_configs_folder):
         os.makedirs(ssh_configs_folder)
@@ -167,5 +206,5 @@ def init_sshd_services():
         except Exception as e:
             print('Failed to delete %s. Reason: %s' % (file_path, e))
 
-    for pack in Pack.objects.filter(started=True, finished=False):
+    for pack in Pack.get_active_packs():
         pack.run_pack()

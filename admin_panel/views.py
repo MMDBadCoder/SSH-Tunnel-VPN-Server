@@ -21,7 +21,7 @@ def admin_panel_page(request):
     data = {
         'TIME_TO_REBOOT': timedelta(seconds=reminded_seconds_to_reboot),
         'CONNECTIONS_COUNT': Pack.all_connection_count(),
-        'ACTIVE_PACKS_COUNT': Pack.objects.filter(started=True, finished=False).count(),
+        'ACTIVE_PACKS_COUNT': Pack.get_active_packs().count(),
         'PAYMENT_WEB_HOOK': PaymentKey.get_key(),
         'HOSTNAME': HOSTNAME
     }
@@ -34,7 +34,7 @@ def admin_panel_page(request):
 def active_packs(request):
     data = {
         'CONNECTIONS_COUNT': Pack.all_connection_count(),
-        'packs': Pack.objects.filter(started=True, finished=False).order_by('-id'),
+        'packs': Pack.get_active_packs().order_by('-id'),
         'HOSTNAME': HOSTNAME
     }
 

@@ -13,7 +13,7 @@ def grant_gifts(modeladmin, request, queryset):
             users = User.objects.filter(is_active=True)
         elif gift.active_users:
             users = []
-            for pack in Pack.objects.filter(started=True, finished=False):
+            for pack in Pack.get_active_packs():
                 users.append(pack.user)
         else:
             users = []
