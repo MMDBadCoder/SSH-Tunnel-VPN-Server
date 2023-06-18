@@ -29,6 +29,7 @@ class Pack(models.Model):
     usage = models.IntegerField(default=0, null=False, blank=False)
     label = models.CharField(max_length=1000, default=None, blank=True, null=True)
     free_traffic = models.BooleanField(default=False, null=False, blank=False)
+    traffic_limit = models.IntegerField(default=None, null=True, blank=True)
 
     def __str__(self):
         return self.user.first_name + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'
@@ -182,12 +183,14 @@ class TempUsageTraffic(models.Model):
 
 def check_finished_packs():
     while True:
-        time.sleep(60 * 60)
         for pack in Pack.get_active_packs():
             passed_seconds = (datetime.datetime.now(datetime.timezone.utc) - pack.start_time).total_seconds()
-            if passed_seconds > (pack.days * 24 * 60 * 60):
+            time_expired = passed_seconds > (pack.days * 24 * 60 * 60)
+            traffic_limit_overed = pack.traffic_limit is not None and pack.get_usage() >= pack.traffic_limit
+            if time_expired or traffic_limit_overed:
                 pack.finish()
                 pack.create_usage_factor()
+        time.sleep(10 * 60)
 
 
 def init_active_packs_sessions():

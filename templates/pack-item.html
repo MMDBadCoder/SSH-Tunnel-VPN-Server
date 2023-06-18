@@ -1,8 +1,8 @@
 <div class="item">
 
-{% if pack.label %}
-    <h3 style="color: gold">{{ pack.label }}</h3>
-{% endif %}
+    {% if pack.label %}
+        <h3 style="color: gold">{{ pack.label }}</h3>
+    {% endif %}
 
     {% if pack.finished %}
         <i class="icon close red large"></i>
@@ -210,7 +210,13 @@
     {% endif %}
 
     <div class="content">
-        <a class="header">Pack {{ pack.id }} ({{ pack.days }} Days)</a>
+        <a class="header">
+            Pack {{ pack.id }}
+            ({{ pack.days }} Days)
+            {% if pack.traffic_limit %}
+                ({{ pack.traffic_limit | filesizeformat }} limit)
+            {% endif %}
+        </a>
         <div class="description">
             {% if pack.finished %}
                 Expired
@@ -238,8 +244,8 @@
         </div>
     </div>
 
-{% if pack.free_traffic %}
-    <label style="color: lawngreen; font-weight: lighter">Free Traffic</label>
-{% endif %}
+    {% if pack.free_traffic %}
+        <label style="color: lawngreen; font-weight: lighter">Free Traffic</label>
+    {% endif %}
 
 </div>
