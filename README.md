@@ -26,5 +26,5 @@ full automated vpn server
 for example, admin can restart it by <code>sudo systemctl restart mmdvpn</code></li>
 <li>Admin can add new superuser by executing <code>./adduser.sh</code></li>
 <li>Admin can run server manually by executing <code>./runserver.sh</code></li>
-<li>Admin can monitor active sessions in <code>/active</code> url</li>
+<li>Admin can monitor active sessions in <code>/admin/active-packs/</code> url</li>
 </ul>
