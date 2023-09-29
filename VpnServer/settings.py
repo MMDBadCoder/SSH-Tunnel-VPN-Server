@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     'accounting',
     'packs',
     'payment',
-    'backup_system',
-    'admin_panel'
+    'admin_panel',
+    'django_state_keeper'
 ]
 
 MIDDLEWARE = [
