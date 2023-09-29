@@ -4,7 +4,6 @@ import time
 from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from VpnServer.settings import HOSTNAME, STARTUP_TIME, REBOOT_PERIOD_SECONDS
