@@ -19,7 +19,7 @@ Description=MMD VPN Startup Script
 [Service]
 Restart=on-failure
 WorkingDirectory=$project_root
-ExecStart=$python_file $manage_file runserver 0.0.0.0:80
+ExecStart=$python_file $manage_file runserver 0.0.0.0:80 --noreload
 [Install]
 WantedBy=multi-user.target" >mmdvpn.service
 mv mmdvpn.service /lib/systemd/system/mmdvpn.service
