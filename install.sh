@@ -27,7 +27,7 @@ mv mmdvpn.service /lib/systemd/system/mmdvpn.service
 echo "
 source ./venv/bin/activate
 python manage.py migrate
-python manage.py runserver 0.0.0.0:80
+python manage.py runserver 0.0.0.0:80 --noreload
 " >"$running_file"
 
 chmod +x runserver.sh
