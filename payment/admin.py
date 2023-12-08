@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from payment.models import Credit, PaymentFactor, WebhookReports
+from payment.models import Credit, PaymentFactor, WebhookReports, ManualPaymentReport
 
 
 @admin.register(Credit)
@@ -15,4 +15,9 @@ class PaymentFactorAdmin(admin.ModelAdmin):
 
 @admin.register(WebhookReports)
 class WebhookReportAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ManualPaymentReport)
+class ManualPaymentReportAdmin(admin.ModelAdmin):
     pass

@@ -3,13 +3,15 @@ import string
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 from packs.models import Pack
 
 
 class WebhookReports(models.Model):
-    amount = models.IntegerField(null=False, blank=False)
+    amount = models.IntegerField(null=False, blank=False)  # Rial
     name = models.TextField(max_length=100, null=False, blank=False)
     dt = models.DateTimeField(null=False, blank=False)
     mail = models.TextField(max_length=100, null=False, blank=False)
@@ -21,6 +23,18 @@ class WebhookReports(models.Model):
         if query.exists():
             return query.first().first_name + "-" + str(self.amount)
         return self.mail + "-" + str(self.amount)
+
+
+class ManualPaymentReport(models.Model):
+    amount = models.IntegerField(null=False, blank=False)  # Rial
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+
+
+@receiver(post_save, sender=ManualPaymentReport)
+def create_backup_thread(sender, instance: ManualPaymentReport, **kwargs):
+    current_credit = Credit.get_credit(instance.user)
+    new_credit = instance.amount + current_credit
+    Credit(reminded_credit=new_credit, user=instance.user, payment_factor=None, webhook_report=None).save()
 
 
 class PaymentKey(models.Model):
@@ -68,7 +82,7 @@ class PaymentFactor(models.Model):
 
 
 class Credit(models.Model):
-    reminded_credit = models.IntegerField(default=0, blank=False, null=False)
+    reminded_credit = models.IntegerField(default=0, blank=False, null=False)  # Toman
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     payment_factor = models.ForeignKey(to=PaymentFactor, on_delete=models.SET_NULL, null=True, blank=True)
     webhook_report = models.ForeignKey(to=WebhookReports, default=None, on_delete=models.SET_NULL, null=True,
