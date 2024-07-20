@@ -15,14 +15,14 @@ def finish_pack(modeladmin, request, queryset):
         pack.finish()
 
 
+@admin.register(Pack)
 class PackAdmin(admin.ModelAdmin):
     actions = [start_pack, finish_pack]
+    list_display = ('user', 'days', 'get_started_from', 'get_human_readable_usage', 'started', 'finished')
     list_filter = ('started', 'finished')
-
-
-admin.site.register(Pack, PackAdmin)
 
 
 @admin.register(UsageTraffic)
 class TempUsageTrafficAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('pack', 'get_human_readable_usage', 'get_user')
+    list_filter = ['committed']

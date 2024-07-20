@@ -10,6 +10,8 @@ import time
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Sum
+from django.utils import timezone
+from django.utils.timesince import timesince
 
 from VpnServer.settings import PORTS_START_FROM, EACH_GIG_PRICE
 from . import os_user
@@ -35,6 +37,17 @@ class Pack(models.Model):
 
     def __str__(self):
         return self.user.first_name + '-' + 'pack' + str(self.id) + '(' + str(self.days) + ' days)'
+
+    def get_human_readable_usage(self):
+        return human_readable_traffic_size(self.usage)
+
+    get_human_readable_usage.short_description = "Usage"
+
+    def get_started_from(self):
+        now = timezone.now()
+        return timesince(self.start_time, now)
+
+    get_started_from.short_description = "Started From"
 
     @staticmethod
     def get_first_free_port():
@@ -144,6 +157,16 @@ class UsageTraffic(models.Model):
     pack = models.ForeignKey(to=Pack, null=False, blank=False, on_delete=models.CASCADE)
     committed = models.BooleanField(default=False)
 
+    def get_user(self):
+        return self.pack.user
+
+    get_user.short_description = 'User'
+
+    def get_human_readable_usage(self):
+        return human_readable_traffic_size(self.usage)
+
+    get_human_readable_usage.short_description = "Usage"
+
     @staticmethod
     def update_temp_traffic_usage(pack):
         UsageTraffic.objects.filter(pack=pack, committed=False).delete()
@@ -152,7 +175,8 @@ class UsageTraffic(models.Model):
 
     @staticmethod
     def get_sum_of_committed_traffics(pack):
-        return UsageTraffic.objects.filter(pack=pack, committed=True).aggregate(Sum('usage'))
+        total = UsageTraffic.objects.filter(pack=pack, committed=True).aggregate(Sum('usage'))
+        return total['usage__sum'] if total['usage__sum'] is not None else 0
 
     @staticmethod
     def commit_all():
@@ -197,3 +221,11 @@ def init_active_packs_sessions():
 
     for pack in Pack.get_active_packs():
         pack.run_pack()
+
+
+def human_readable_traffic_size(num):
+    for unit in ['B', 'K', 'M', 'G', 'T', 'P']:
+        if abs(num) < 1000:
+            return f"{num:.1f}{unit}"
+        num /= 1000
+    return f"{num:.1f}E"
