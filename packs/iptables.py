@@ -2,7 +2,7 @@ import subprocess
 
 
 def create_chain_name(pack):
-    return 'vpn-chain-' + str(pack.id)
+    return 'vpn-chain-' + str(pack.id) + "-chain"
 
 
 def register_new_chain(pack):
@@ -41,3 +41,26 @@ def get_usage_of_pack_after_startup(pack):
             total_usage += int(usage_part)
 
     return total_usage
+
+
+def delete_chain(pack):
+    chain_name = create_chain_name(pack)
+
+    command_to_get_input_rule_numbers = \
+        f'iptables -L -v -n --line-numbers | grep {chain_name} | grep dpt | cut -d " " -f1'
+    input_rules = subprocess.run([command_to_get_input_rule_numbers], stdout=subprocess.PIPE,
+                                 shell=True).stdout.decode('utf-8').strip().splitlines()
+    for rule_num in input_rules:
+        command = f'iptables -D INPUT {str(rule_num)}'
+        subprocess.run([command], shell=True)
+
+    command_to_get_output_rule_numbers = \
+        f'iptables -L -v -n --line-numbers | grep {chain_name} | grep spt | cut -d " " -f1'
+    output_rules = subprocess.run([command_to_get_output_rule_numbers], stdout=subprocess.PIPE,
+                                  shell=True).stdout.decode('utf-8').strip().splitlines()
+    for rule_num in output_rules:
+        command = f'iptables -D OUTPUT {str(rule_num)}'
+        subprocess.run([command], shell=True)
+
+    subprocess.run([f'iptables -F {chain_name}'], shell=True)
+    subprocess.run([f'iptables -X {chain_name}'], shell=True)

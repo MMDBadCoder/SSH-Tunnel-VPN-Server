@@ -45,10 +45,8 @@
 
             <div class="item">
                 <div class="content">
-                    <div class="header">Time to reboot: {{ TIME_TO_REBOOT }}</div>
                     Now: {% now "jS F Y H:i" %}
                     <ul>
-                        <li><a href="{% url 'admin-reboot' %}">Reboot now</a></li>
                         <li><a href="{% url 'admin-service-restart' %}">Restart vpn service</a></li>
                     </ul>
                 </div>

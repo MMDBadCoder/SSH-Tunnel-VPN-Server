@@ -1,13 +1,11 @@
 import os
 import shutil
 import time
-from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect
 
-from VpnServer.settings import HOSTNAME, STARTUP_TIME, REBOOT_PERIOD_SECONDS
-from VpnServer.wsgi import reboot_os
+from VpnServer.settings import HOSTNAME, STARTUP_TIME
 from packs.models import Pack
 from payment.models import PaymentKey
 
@@ -16,9 +14,7 @@ from payment.models import PaymentKey
 @user_passes_test(lambda u: u.is_superuser)
 def admin_panel_page(request):
     running_time = time.time() - STARTUP_TIME
-    reminded_seconds_to_reboot = int(REBOOT_PERIOD_SECONDS - running_time)
     data = {
-        'TIME_TO_REBOOT': timedelta(seconds=reminded_seconds_to_reboot),
         'CONNECTIONS_COUNT': Pack.all_connection_count(),
         'ACTIVE_PACKS_COUNT': Pack.get_active_packs().count(),
         'PAYMENT_WEB_HOOK': PaymentKey.get_key(),
@@ -38,12 +34,6 @@ def active_packs(request):
     }
 
     return render(request, 'active-packs.html', data)
-
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def reboot(request):
-    reboot_os()
 
 
 @login_required
