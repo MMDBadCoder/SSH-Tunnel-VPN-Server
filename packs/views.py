@@ -55,6 +55,6 @@ def restart_pack(request, pack_id):
     pack = Pack.objects.get(id=pack_id)
     if pack.finished or not pack.started:
         return HttpResponseBadRequest("Pack is not active.")
-    pack.finish()
+    pack.close()
     pack.run_pack()
     return redirect('user-home')

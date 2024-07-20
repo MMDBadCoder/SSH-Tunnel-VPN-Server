@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from packs.models import Pack, TempUsageTraffic
+from packs.models import Pack, UsageTraffic
 
 
 @admin.action(description="Start pack")
@@ -13,7 +13,6 @@ def start_pack(modeladmin, request, queryset):
 def finish_pack(modeladmin, request, queryset):
     for pack in queryset.all():
         pack.finish()
-        pack.create_usage_factor()
 
 
 class PackAdmin(admin.ModelAdmin):
@@ -24,6 +23,6 @@ class PackAdmin(admin.ModelAdmin):
 admin.site.register(Pack, PackAdmin)
 
 
-@admin.register(TempUsageTraffic)
+@admin.register(UsageTraffic)
 class TempUsageTrafficAdmin(admin.ModelAdmin):
     pass

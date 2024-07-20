@@ -9,10 +9,12 @@ import time
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Sum
 
 from VpnServer.settings import PORTS_START_FROM, EACH_GIG_PRICE
 from . import os_user
 from .iptables import register_new_chain, get_usage_of_pack_after_startup
+from .linux_process_box import kill_all_os_process_of_pack
 
 
 class Pack(models.Model):
@@ -96,24 +98,19 @@ class Pack(models.Model):
             self.session_pid = int(pid_of_ssh)
             self.save()
 
-    def kill_ssh_session(self):
-        if self.session_pid != -1:
-            try:
-                os.kill(self.session_pid, 9)
-                print(f"Pack {self.id} was finished successfully.")
-            except Exception as e:
-                print(f"Failed at finishing pack {self.id}")
-                print(e)
-
-    def finish(self):
+    def close(self):
         self.started = True
         self.finished = True
-        self.save()
         os_user.remove_user(self.linux_username)
-        self.kill_ssh_session()
+        kill_all_os_process_of_pack(self)
+        self.usage = UsageTraffic.get_full_traffic_usage_of_pack(self)
+        self.save()
+
+    def finish(self):
+        self.close()
+        self.create_usage_factor()
 
     def create_usage_factor(self):
-        self.flush_usage_of_after_startup()
         from payment.models import PaymentFactor
         pay_amount = EACH_GIG_PRICE * self.usage / 2 ** 30
         PaymentFactor(related_pack=self, user=self.user, amount=pay_amount,
@@ -132,11 +129,6 @@ class Pack(models.Model):
             return self.usage
         return self.usage + get_usage_of_pack_after_startup(self)
 
-    def flush_usage_of_after_startup(self):
-        TempUsageTraffic.objects.filter(pack=self).delete()
-        self.usage += get_usage_of_pack_after_startup(self)
-        self.save()
-
     @staticmethod
     def all_connection_count():
         command = "ps ax | grep ssh | grep '\[priv\]'"
@@ -147,38 +139,34 @@ class Pack(models.Model):
         return len(result.split('\n'))
 
 
-class TempUsageTraffic(models.Model):
+class UsageTraffic(models.Model):
     usage = models.IntegerField(default=0, null=False, blank=False)
     pack = models.ForeignKey(to=Pack, null=False, blank=False, on_delete=models.CASCADE)
-
-    def flush(self):
-        self.pack.usage += self.usage
-        self.pack.save()
-        self.delete()
-
-    def update_usage(self):
-        self.usage = get_usage_of_pack_after_startup(self.pack)
-        self.save()
+    committed = models.BooleanField(default=False)
 
     @staticmethod
-    def get_temp_usage_of_pack(pack: Pack):
-        query = TempUsageTraffic.objects.filter(pack=pack)
-        if query.exists():
-            return query.first()
-        temp_usage = TempUsageTraffic(pack=pack)
-        temp_usage.save()
-        temp_usage.update_usage()
-        return temp_usage
+    def update_temp_traffic_usage(pack):
+        UsageTraffic.objects.filter(pack=pack, committed=False).delete()
+        traffic_after_startup = get_usage_of_pack_after_startup(pack)
+        UsageTraffic(pack=pack, usage=traffic_after_startup, committed=False).save()
 
     @staticmethod
-    def flush_all():
-        for tempTraffic in TempUsageTraffic.objects.all():
-            tempTraffic.flush()
+    def get_sum_of_committed_traffics(pack):
+        return UsageTraffic.objects.filter(pack=pack, committed=True).aggregate(Sum('usage'))
 
     @staticmethod
-    def update_temp_usage_of_all_packs():
+    def commit_all():
+        UsageTraffic.objects.filter(committed=False).update(committed=True)
+
+    @staticmethod
+    def update_temp_traffic_usage_of_active_packs():
         for pack in Pack.get_active_packs():
-            TempUsageTraffic.get_temp_usage_of_pack(pack).update_usage()
+            UsageTraffic.update_temp_traffic_usage(pack)
+
+    @staticmethod
+    def get_full_traffic_usage_of_pack(pack: Pack):
+        traffic_after_startup = get_usage_of_pack_after_startup(pack)
+        return UsageTraffic.get_sum_of_committed_traffics(pack) + traffic_after_startup
 
 
 def check_finished_packs():
@@ -189,7 +177,6 @@ def check_finished_packs():
             traffic_limit_overed = pack.traffic_limit is not None and pack.get_usage() >= pack.traffic_limit
             if time_expired or traffic_limit_overed:
                 pack.finish()
-                pack.create_usage_factor()
         time.sleep(10 * 60)
 
 
