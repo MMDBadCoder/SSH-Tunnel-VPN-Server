@@ -40,7 +40,7 @@ def webhook(request, pay_key):
             toman_amount = (amount / 10)
             current_credit = Credit.get_credit(user)
             new_credit = toman_amount + current_credit
-            Credit(reminded_credit=new_credit, user=user, payment_factor=None, webhook_report=webhook_report).save()
+            Credit(reminded_credit=new_credit, user=user, webhook_report=webhook_report).save()
             print("Credit was updated")
         else:
             print("------ User by this mail not found ------")

@@ -21,20 +21,28 @@ class WebhookReports(models.Model):
     def __str__(self):
         query = User.objects.filter(email=self.mail)
         if query.exists():
-            return query.first().first_name + "-" + str(self.amount)
-        return self.mail + "-" + str(self.amount)
+            return query.first().first_name + "-" + f'{self.amount:,}'
+        return self.mail + "-" + f'{self.amount:,}'
 
 
 class ManualPaymentReport(models.Model):
     amount = models.IntegerField(null=False, blank=False)  # Rial
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.user.first_name + "-" + self.get_amount_pretty()
+
+    def get_amount_pretty(self):
+        return f'{self.amount:,}'
+
+    get_amount_pretty.short_description = "Amount"
+
 
 @receiver(post_save, sender=ManualPaymentReport)
 def create_backup_thread(sender, instance: ManualPaymentReport, **kwargs):
     current_credit = Credit.get_credit(instance.user)
     new_credit = instance.amount + current_credit
-    Credit(reminded_credit=new_credit, user=instance.user, payment_factor=None, webhook_report=None).save()
+    Credit(reminded_credit=new_credit, user=instance.user, manual_payment=instance).save()
 
 
 class PaymentKey(models.Model):
@@ -67,7 +75,7 @@ class PaymentFactor(models.Model):
     payed = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.first_name + "-" + str(self.amount) + "-" + self.pay_for
+        return self.user.first_name + "-" + f'{self.amount:,}' + "-" + self.pay_for
 
     def can_pay(self):
         if Credit.get_credit(self.user) >= self.amount:
@@ -87,12 +95,20 @@ class Credit(models.Model):
     payment_factor = models.ForeignKey(to=PaymentFactor, on_delete=models.SET_NULL, null=True, blank=True)
     webhook_report = models.ForeignKey(to=WebhookReports, default=None, on_delete=models.SET_NULL, null=True,
                                        blank=True)
+    manual_payment = models.ForeignKey(to=ManualPaymentReport, default=None, on_delete=models.SET_NULL, null=True,
+                                       blank=True)
+    is_last_credit = models.BooleanField(default=True)
+
+    def get_reminded_credit_pretty(self):
+        return f'{self.reminded_credit:,}'
+
+    get_reminded_credit_pretty.short_description = "Amount"
 
     def __str__(self):
         tag = str(self.id)
         if Credit.objects.filter(user=self.user).last() == self:
-            tag = 'latest'
-        return self.user.first_name + "-" + str(self.reminded_credit) + "-" + tag
+            tag = 'last'
+        return self.user.first_name + "-" + self.get_reminded_credit_pretty()
 
     @staticmethod
     def get_credit(user):
@@ -100,3 +116,11 @@ class Credit(models.Model):
         if not query.exists():
             return 0
         return query.last().reminded_credit
+
+
+@receiver(post_save, sender=Credit)
+def credit_created_handler(sender, instance, created, **kwargs):
+    if created:
+        last_credit = Credit.objects.filter(user=instance.user).exclude(id=instance.id).order_by('-id').first()
+        last_credit.is_last_credit = False
+        last_credit.save()
