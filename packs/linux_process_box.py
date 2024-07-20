@@ -27,6 +27,6 @@ def get_child_pids_recursive(pid):
 
 
 def kill_all_os_process_of_pack(pack):
-    pid_list = get_child_pids_recursive(pack.session_pid)
-    pid_list.append(pack.session_pid)
-    kill_processes(pid_list)
+    kill_processes([pack.session_pid])
+    children = get_child_pids_recursive(pack.session_pid)
+    kill_processes(children)
