@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Enable debugging
-set -x
+set -xe
 
 # Check if the correct number of arguments is provided
 if [ "$#" -ne 4 ]; then
@@ -19,7 +19,6 @@ SSH_PASSWORD=$4
 MAIN_DIR="SSH-Tunnel-VPN-Server-main"
 
 # Define the paths to the files
-LOCAL_ZIP_FILE="$HOME/$MAIN_DIR.zip"
 LOCAL_DB_FILE="./db.sqlite3"
 REMOTE_DIR="~"
 
@@ -41,7 +40,7 @@ sshpass -p "$SSH_PASSWORD" ssh-copy-id -o StrictHostKeyChecking=no -p "$SSH_PORT
 ssh -o StrictHostKeyChecking=no -p "$SSH_PORT" "$SSH_USERNAME@$SSH_HOST" "if ! command -v unzip &> /dev/null; then sudo apt-get update && sudo apt-get install -y unzip; fi"
 
 # Copy the zip file to the remote server
-scp -o StrictHostKeyChecking=no -P "$SSH_PORT" "~/$LOCAL_ZIP_FILE" "$SSH_USERNAME@$SSH_HOST:$REMOTE_DIR"
+scp -o StrictHostKeyChecking=no -P "$SSH_PORT" ~/$MAIN_DIR.zip "$SSH_USERNAME@$SSH_HOST:$REMOTE_DIR"
 
 # Unzip the file on the remote server with overwrite option
 ssh -o StrictHostKeyChecking=no -p "$SSH_PORT" "$SSH_USERNAME@$SSH_HOST" "unzip -o ~/$MAIN_DIR.zip -d ~"
