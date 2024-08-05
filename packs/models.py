@@ -15,7 +15,7 @@ from django.utils.timesince import timesince
 
 from VpnServer.settings import PORTS_START_FROM, EACH_GIG_PRICE
 from . import os_user
-from .iptables import register_new_chain, get_usage_of_pack_after_startup
+from .iptables import register_new_chain, get_usage_of_pack_after_startup, delete_chain
 from .linux_process_box import kill_all_os_process_of_pack
 
 
@@ -121,6 +121,7 @@ class Pack(models.Model):
 
     def finish(self):
         self.close()
+        delete_chain(self)
         self.create_usage_factor()
 
     def create_usage_factor(self):

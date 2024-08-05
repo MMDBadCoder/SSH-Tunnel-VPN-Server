@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
 from django.db.models import Sum
 
-from admin_panel.models import GiftPack, HomeMessage
+from admin_panel.models import GiftPack, HomeMessage, MigrateServer
 from packs.models import Pack
 from payment.models import ManualPaymentReport, WebhookReports, Credit
 
@@ -33,6 +33,11 @@ admin.site.register(GiftPack, GiftPackAdmin)
 @admin.register(HomeMessage)
 class HomeMessageAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(MigrateServer)
+class MigrateServerAdmin(admin.ModelAdmin):
+    list_display = ('server_host', 'server_ssh_port', 'server_ssh_username', 'server_ssh_password', 'get_logs_url')
 
 
 class UserAdmin(BaseUserAdmin):
