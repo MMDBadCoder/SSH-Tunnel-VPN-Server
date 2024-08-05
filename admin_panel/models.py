@@ -56,5 +56,5 @@ def migrate_created_handler(sender, instance: MigrateServer, created, **kwargs):
 
         with open(log_file, 'w') as f:
             subprocess.Popen(args, stdout=f, stderr=subprocess.STDOUT)
-
+        print(script + ' ' + ' '.join(args))
         print(f"Migration started. Log will be saved to {log_file}")

@@ -19,20 +19,27 @@ SSH_PASSWORD=$4
 MAIN_DIR="SSH-Tunnel-VPN-Server-main"
 
 # Define the paths to the files
-LOCAL_DB_FILE="./db.sqlite3"
+LOCAL_DB_FILE="$PWD/db.sqlite3"
+LOCAL_ZIP_FILE="~/$MAIN_DIR.zip"
 
 # Install sshpass if not installed
 if ! command -v sshpass &> /dev/null; then
     echo "sshpass is required but it's not installed. Installing..."
-    sudo apt-get update && sudo apt-get install -y sshpass
+    if ! sudo apt-get update && sudo apt-get install -y sshpass; then
+        echo "Failed to install sshpass. Exiting."
+        exit 1
+    fi
 fi
+
+# Ensure local .ssh directory exists
+mkdir -p ~/.ssh
 
 # Ensure SSH key is generated
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
     ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ""
 fi
 
-# Create .ssh directory if it doesn't exist
+# Create .ssh directory if it doesn't exist on the remote server
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -p "$SSH_PORT" "$SSH_USERNAME@$SSH_HOST" "mkdir -p ~/.ssh"
 
 # Copy SSH key to the remote server
@@ -42,7 +49,7 @@ sshpass -p "$SSH_PASSWORD" ssh-copy-id -i ~/.ssh/id_rsa.pub -o StrictHostKeyChec
 ssh -o StrictHostKeyChecking=no -p "$SSH_PORT" "$SSH_USERNAME@$SSH_HOST" "if ! command -v unzip &> /dev/null; then sudo apt-get update && sudo apt-get install -y unzip; fi"
 
 # Copy the zip file to the remote server
-scp -o StrictHostKeyChecking=no -P "$SSH_PORT" ~/$MAIN_DIR.zip "$SSH_USERNAME@$SSH_HOST:~"
+scp -o StrictHostKeyChecking=no -P "$SSH_PORT" "$LOCAL_ZIP_FILE" "$SSH_USERNAME@$SSH_HOST:~"
 
 # Unzip the file on the remote server with overwrite option
 ssh -o StrictHostKeyChecking=no -p "$SSH_PORT" "$SSH_USERNAME@$SSH_HOST" "unzip -o ~/$MAIN_DIR.zip -d ~"
