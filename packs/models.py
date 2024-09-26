@@ -44,6 +44,8 @@ class Pack(models.Model):
     get_human_readable_usage.short_description = "Usage"
 
     def get_started_from(self):
+        if not self.started:
+            return "-"
         now = timezone.now()
         return timesince(self.start_time, now)
 

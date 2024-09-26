@@ -18,7 +18,7 @@ def finish_pack(modeladmin, request, queryset):
 @admin.register(Pack)
 class PackAdmin(admin.ModelAdmin):
     actions = [start_pack, finish_pack]
-    list_display = ('user', 'days', 'get_started_from', 'get_human_readable_usage', 'started', 'finished')
+    list_display = ("id", 'user', 'days', 'get_started_from', 'get_human_readable_usage', 'started', 'finished')
     list_filter = ('started', 'finished')
 
 

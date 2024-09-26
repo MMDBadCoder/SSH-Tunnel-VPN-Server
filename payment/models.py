@@ -21,8 +21,8 @@ class WebhookReports(models.Model):
     def __str__(self):
         query = User.objects.filter(email=self.mail)
         if query.exists():
-            return query.first().first_name + "-" + f'{self.amount:,}'
-        return self.mail + "-" + f'{self.amount:,}'
+            return query.first().first_name + "-" + f'{self.amount:,} T'
+        return self.mail + "-" + f'{self.amount:,} T'
 
 
 class ManualPaymentReport(models.Model):
@@ -33,7 +33,7 @@ class ManualPaymentReport(models.Model):
         return self.user.first_name + "-" + self.get_amount_pretty()
 
     def get_amount_pretty(self):
-        return f'{self.amount:,}'
+        return f'{self.amount:,} T'
 
     get_amount_pretty.short_description = "Amount"
 
@@ -74,8 +74,10 @@ class PaymentFactor(models.Model):
     related_pack = models.ForeignKey(to=Pack, null=True, default=None, on_delete=models.SET_NULL)
     payed = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.user.first_name + "-" + f'{self.amount:,}' + "-" + self.pay_for
+    def get_human_readable_pay_amount(self):
+        return f'{self.amount:,} T'
+
+    get_human_readable_pay_amount.short_description = "Amount"
 
     def can_pay(self):
         if Credit.get_credit(self.user) >= self.amount:
@@ -100,7 +102,7 @@ class Credit(models.Model):
     is_last_credit = models.BooleanField(default=True)
 
     def get_reminded_credit_pretty(self):
-        return f'{self.reminded_credit:,}'
+        return f'{self.reminded_credit:,} T'
 
     get_reminded_credit_pretty.short_description = "Amount"
 
