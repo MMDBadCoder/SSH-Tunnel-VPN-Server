@@ -124,5 +124,6 @@ class Credit(models.Model):
 def credit_created_handler(sender, instance, created, **kwargs):
     if created:
         last_credit = Credit.objects.filter(user=instance.user).exclude(id=instance.id).order_by('-id').first()
-        last_credit.is_last_credit = False
-        last_credit.save()
+        if last_credit is not None:
+            last_credit.is_last_credit = False
+            last_credit.save()
