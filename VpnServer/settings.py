@@ -140,9 +140,9 @@ RUNNING_SERVER = (len(sys.argv) > 1 and sys.argv[1] == 'runserver')
 ##########################################
 
 PORTS_START_FROM = 2200
-EACH_DAY_PRICE = 1_000  # toman
+EACH_DAY_PRICE = 2_000  # toman
 VALID_RANGE_OF_DAYS = range(10, 91)
-EACH_GIG_PRICE = 1_000  # toman
+EACH_GIG_PRICE = 2_000  # toman
 IDPAY_PAYMENT_PAGE_URL = 'https://idpay.ir/mmd10'
 HOSTNAME = 'mmd-net.ir'
 UPDATE_TEMP_TRAFFIC_USAGE_SECONDS = 30 * 60
